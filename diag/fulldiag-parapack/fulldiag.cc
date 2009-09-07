@@ -218,12 +218,38 @@ fulldiag_worker::run(alps::ObservableSet& obs)
         diagonal_energy(i) = Hamiltonian(i, i);
     }
 
+    // partition function coefficients
+    matrix_type matrix(dim, dim);
+    matrix.clear();
+    for (std::size_t i = 0; i < dim; ++i) {
+        matrix(i, i) = 1;
+    }
+    double factor = 1.;
+    for (std::size_t k = 0; k < 5; ++k) {
+        if (k != 0) {
+            matrix = prod(Hamiltonian, matrix);
+            factor *= -k;
+        }
+        double trace = 0.;
+        for (std::size_t i = 0; i < dim; ++i) {
+            trace += matrix(i, i);
+        }
+        m["Partition Function Coefficient #" + boost::lexical_cast<std::string>(k)]
+            = trace / factor;
+    }
+
+    // diagonalize Hamiltonian matrix
     vector_type evals(dim);
     std::cerr << "start diagonalization... " << std::flush;
     diagonalize(Hamiltonian, evals);
     std::cerr << "done\n";
 
-    std::cout << "Ground state energy: " << evals(0) << std::endl;
+    double E0 = evals(0);
+    double Z  = 0.;
+    BOOST_REVERSE_FOREACH(double eval, evals) {
+        double weight = std::exp(-beta * (eval - E0));
+        Z += weight;
+    }
 }
 
 void
