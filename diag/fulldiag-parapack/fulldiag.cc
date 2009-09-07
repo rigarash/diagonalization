@@ -90,7 +90,6 @@ void
 add_to_matrix(
     M& matrix,
     alps::HamiltonianDescriptor<I> const& hd,
-    alps::BasisDescriptor<I> const& basis,
     alps::basis_states<I> const& basis_set,
     typename alps::graph_traits<G>::bond_descriptor const& ed,
     typename alps::graph_traits<G>::site_descriptor const& vd0,
@@ -100,6 +99,8 @@ add_to_matrix(
 {
     typedef typename M::value_type value_type;
     typedef alps::basis_states<I> basis_set_type;
+
+    alps::BasisDescriptor<I> const& basis(hd.basis());
 
     int t   = get(alps::bond_type_t(), graph, ed);
     int st0 = get(alps::site_type_t(), graph, vd0);
@@ -218,7 +219,7 @@ fulldiag_worker::run(alps::ObservableSet& obs)
         add_to_matrix(Hamiltonian, model(), basis_set, s, graph(), params);
     }
     BOOST_FOREACH(bond_descriptor b, bonds()) {
-        add_to_matrix(Hamiltonian, model(), model().basis(), basis_set, b, source(b, graph()), target(b, graph()), graph(), params);
+        add_to_matrix(Hamiltonian, model(), basis_set, b, source(b, graph()), target(b, graph()), graph(), params);
     }
     diagonal_matrix_type diagonal_energy(dim);
     for (std::size_t i = 0; i < dim; ++i) {
