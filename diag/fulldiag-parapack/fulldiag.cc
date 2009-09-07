@@ -195,7 +195,7 @@ fulldiag_worker::run(alps::ObservableSet& obs)
 
     double beta = 1.0;
     if (params.defined("T")) {
-        beta = 1.0 / alps::evaluate<double>("beta", params);
+        beta = 1.0 / alps::evaluate<double>("T", params);
     }
 
     alps::basis_states<short>
