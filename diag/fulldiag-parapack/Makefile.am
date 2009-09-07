@@ -1,4 +1,4 @@
-SOURCES	= fulldiag.cc
+SOURCES	= main.cc fulldiag.cc fulldiag.h
 
 bin_PROGRAMS =
 if BUILD_DIAG_FULLDIAG_PARAPACK

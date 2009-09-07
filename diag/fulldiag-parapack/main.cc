@@ -24,55 +24,23 @@
 *
 *****************************************************************************/
 
-#include "fulldiag.h"
+#define FULLDIAG_PARAPACK_VERSION "0.1-20090907"
+#define FULLDIAG_PARAPACK_DATE    "2009/09/07"
 
-#include <alps/parameter.h>
-#include <alps/alea.h>
+#define FULLDIAG_PARAPACK_VERSION_STRING "ALPS/fulldiag-parapack version " \
+    FULLDIAG_PARAPACK_VERSION " (" FULLDIAG_PARAPACK_DATE ")"
 
-namespace alps{
-namespace diag{
+#define FULLDIAG_PARAPACK_COPYRIGHT FULLDIAG_PARAPACK_VERSION_STRING "\n" \
+    "  Full diagonalization for quantum lattice systems using parapack scheduler \n" \
+    "  Copyright (c) 1997-2009 by Synge Todo <wistaria@comp-phys.org>,\n" \
+    "                             Ryo IGARASHI <rigarash@hosi.phys.s.u-tokyo.ac.jp>\n" \
 
-fulldiag_worker::fulldiag_worker(alps::Parameters const& params)
-    : alps::parapack::abstract_worker(),
-      alps::graph_helper<>(params),
-      alps::model_helper<>(*this, params),
-      done(false)
-{}
+#include <alps/parapack/scheduler.h>
 
-void
-fulldiag_worker::init_observables(alps::Parameters const& /* params */,
-                                  alps::ObservableSet& /* obs */)
-{}
-
-inline
-bool
-fulldiag_worker::is_thermalized() const
-{ return true; }
-
-inline
-double
-fulldiag_worker::progress() const
-{ return done ? 1 : 0; }
-
-void
-fulldiag_worker::run(alps::ObservableSet& obs)
-{
-    done = true;
+int
+main(int argc, char** argv) {
+    return alps::parapack::start(argc, argv);
 }
 
-void
-fulldiag_worker::save(alps::ODump& dump) const
-{ dump << done; }
-
-void
-fulldiag_worker::load(alps::IDump& dump)
-{ dump >> done; }
-
-} // end namespace diag
-} // end namespace alps
-
-namespace {
-
-PARAPACK_REGISTER_WORKER(alps::diag::fulldiag_worker, "Full diagonalization");
-
-} // end namespace
+PARAPACK_SET_COPYRIGHT(FULLDIAG_PARAPACK_COPYRIGHT)
+PARAPACK_SET_VERSION(FULLDIAG_PARAPACK_VERSION_STRING)

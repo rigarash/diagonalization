@@ -24,55 +24,37 @@
 *
 *****************************************************************************/
 
-#include "fulldiag.h"
+#include <alps/lattice.h>
+#include <alps/model.h>
+#include <alps/parapack/serial.h>
 
-#include <alps/parameter.h>
-#include <alps/alea.h>
+// forward declaration
+class alps::Parameters;
+class alps::ObservableSet;
+class alps::ODump;
+class alps::IDump;
 
-namespace alps{
-namespace diag{
+namespace alps {
+namespace diag {
 
-fulldiag_worker::fulldiag_worker(alps::Parameters const& params)
-    : alps::parapack::abstract_worker(),
-      alps::graph_helper<>(params),
-      alps::model_helper<>(*this, params),
-      done(false)
-{}
-
-void
-fulldiag_worker::init_observables(alps::Parameters const& /* params */,
-                                  alps::ObservableSet& /* obs */)
-{}
-
-inline
-bool
-fulldiag_worker::is_thermalized() const
-{ return true; }
-
-inline
-double
-fulldiag_worker::progress() const
-{ return done ? 1 : 0; }
-
-void
-fulldiag_worker::run(alps::ObservableSet& obs)
+class fulldiag_worker
+    : public alps::parapack::abstract_worker,
+      protected alps::graph_helper<>,
+      protected alps::model_helper<>
 {
-    done = true;
-}
+ public:
+    fulldiag_worker(alps::Parameters const& params);
+    void init_observables(alps::Parameters const& /* params */,
+                          alps::ObservableSet& /* obs */);
+    bool is_thermalized() const;
+    double progress() const;
+    void run(alps::ObservableSet& /* obs */);
+    void save(alps::ODump& /* odump */) const;
+    void load(alps::IDump& /* idump */);
 
-void
-fulldiag_worker::save(alps::ODump& dump) const
-{ dump << done; }
-
-void
-fulldiag_worker::load(alps::IDump& dump)
-{ dump >> done; }
+ private:
+    bool done;
+};
 
 } // end namespace diag
 } // end namespace alps
-
-namespace {
-
-PARAPACK_REGISTER_WORKER(alps::diag::fulldiag_worker, "Full diagonalization");
-
-} // end namespace

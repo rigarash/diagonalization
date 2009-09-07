@@ -55,7 +55,7 @@ CONFIG_CLEAN_VPATH_FILES =
 @BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_2 = fulldiag-parapack-mpi$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = fulldiag.$(OBJEXT)
+am__objects_1 = main.$(OBJEXT) fulldiag.$(OBJEXT)
 am_fulldiag_parapack_OBJECTS = $(am__objects_1)
 fulldiag_parapack_OBJECTS = $(am_fulldiag_parapack_OBJECTS)
 fulldiag_parapack_LDADD = $(LDADD)
@@ -77,6 +77,15 @@ LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 DIST_SOURCES = $(fulldiag_parapack_SOURCES) \
 	$(fulldiag_parapack_mpi_SOURCES)
@@ -208,7 +217,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SOURCES = fulldiag.cc
+SOURCES = main.cc fulldiag.cc fulldiag.h
 fulldiag_parapack_SOURCES = $(SOURCES)
 fulldiag_parapack_mpi_SOURCES = $(SOURCES)
 fulldiag_parapack_mpi_LDFLAGS = @LDFLAGS_MPI@
@@ -304,6 +313,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fulldiag.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
