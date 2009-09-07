@@ -26,10 +26,10 @@
 
 #include <alps/lattice.h>
 #include <alps/model.h>
+#include <alps/parameter.h>
 #include <alps/parapack/serial.h>
 
 // forward declaration
-class alps::Parameters;
 class alps::ObservableSet;
 class alps::ODump;
 class alps::IDump;
@@ -53,6 +53,7 @@ class fulldiag_worker
     void load(alps::IDump& /* idump */);
 
  private:
+    alps::Parameters params;
     bool done;
 };
 

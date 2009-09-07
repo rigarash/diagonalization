@@ -29,13 +29,141 @@
 #include <alps/parameter.h>
 #include <alps/alea.h>
 
+#include <boost/foreach.hpp>
+#include <boost/multi_array.hpp>
+
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/bindings/lapack/syev.hpp>
+#include <boost/numeric/bindings/traits/traits.hpp>
+#include <boost/numeric/bindings/traits/matrix_traits.hpp>
+#include <boost/numeric/bindings/traits/ublas_vector.hpp>
+#include <boost/numeric/bindings/traits/ublas_matrix.hpp>
+
+#include <cmath>
+#include <cstddef>
+
+namespace {
+
+template <typename M, typename I, typename G>
+void
+add_to_matrix(
+    M& matrix,
+    alps::HamiltonianDescriptor<I> const& hd,
+    alps::BasisDescriptor<I> const& basis,
+    alps::basis_states<I> const& basis_set,
+    typename alps::graph_traits<G>::vertex_descriptor const& vd,
+    G const& graph,
+    alps::Parameters const& params)
+{
+    typedef typename M::value_type value_type;
+    typedef alps::basis_states<I> basis_set_type;
+
+    int t = get(alps::site_type_t(),  graph, vd);
+    int s = get(alps::site_index_t(), graph, vd);
+    std::size_t dim = basis_set.size();
+    std::size_t ds  = basis_set.basis().get_site_basis(s).num_states();
+
+    boost::multi_array<value_type, 2>
+        site_matrix(
+            alps::get_matrix(value_type(),
+                             hd.site_term(t),
+                             basis.site_basis(t),
+                             params));
+
+    for (std::size_t i = 0; i < dim; ++i) {
+        std::size_t is = basis_set[i][s];
+        for (std::size_t js = 0; js < ds; ++js) {
+            typename basis_set_type::value_type target(basis_set[i]);
+            target[s] = js;
+            std::size_t j = basis_set.index(target);
+            if (j < dim) {
+                matrix(i, j) += site_matrix[is][js];
+            }
+        }
+    }
+}
+
+template <typename M, typename I, typename G>
+void
+add_to_matrix(
+    M& matrix,
+    alps::HamiltonianDescriptor<I> const& hd,
+    alps::BasisDescriptor<I> const& basis,
+    alps::basis_states<I> const& basis_set,
+    typename alps::graph_traits<G>::bond_descriptor const& ed,
+    typename alps::graph_traits<G>::site_descriptor const& vd0,
+    typename alps::graph_traits<G>::site_descriptor const& vd1,
+    G const& graph,
+    alps::Parameters const& params)
+{
+    typedef typename M::value_type value_type;
+    typedef alps::basis_states<I> basis_set_type;
+
+    int t   = get(alps::bond_type_t(), graph, ed);
+    int st0 = get(alps::site_type_t(), graph, vd0);
+    int st1 = get(alps::site_type_t(), graph, vd1);
+    int s0  = get(alps::site_index_t(), graph, vd0);
+    int s1  = get(alps::site_index_t(), graph, vd1);
+    std::size_t dim = basis_set.size();
+    std::size_t ds0 = basis_set.basis().get_site_basis(s0).num_states();
+    std::size_t ds1 = basis_set.basis().get_site_basis(s1).num_states();
+
+    boost::multi_array<value_type, 4>
+        bond_matrix(
+            alps::get_matrix(value_type(),
+                             hd.bond_term(t),
+                             basis.site_basis(st0),
+                             basis.site_basis(st1),
+                             params));
+
+    for (std::size_t i = 0; i < dim; ++i) {
+        std::size_t is0 = basis_set[i][s0];
+        std::size_t is1 = basis_set[i][s1];
+        for (std::size_t js0 = 0; js0 < ds0; ++js0) {
+            for (std::size_t js1 = 0; js1 < ds1; ++js1) {
+                typename basis_set_type::value_type target(basis_set[i]);
+                target[s0] = js0;
+                target[s1] = js1;
+                std::size_t j = basis_set.index(target);
+                if (j < dim) {
+                    matrix(i, j) += bond_matrix[is0][is1][js0][js1];
+                }
+            }
+        }
+    }
+}
+
+template <typename T, typename R, typename A, typename V>
+void
+diagonalize(
+    boost::numeric::ublas::matrix<T, R, A>& a,
+    V& v, bool need_eigenvectors = true)
+{
+    using namespace boost::numeric::bindings::lapack;
+
+    BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category, boost::numeric::ublas::column_major_tag>::value));
+
+    const char jobz = (need_eigenvectors ? 'V' : 'N');
+    const char uplo = 'L';
+
+    int info = syev(jobz, uplo, a, v, optimal_workspace());
+
+    if (info != 0) {
+        throw std::runtime_error("failed in syev");
+    }
+}
+
+} // end namespace
+
 namespace alps{
 namespace diag{
 
-fulldiag_worker::fulldiag_worker(alps::Parameters const& params)
+fulldiag_worker::fulldiag_worker(alps::Parameters const& ps)
     : alps::parapack::abstract_worker(),
-      alps::graph_helper<>(params),
-      alps::model_helper<>(*this, params),
+      alps::graph_helper<>(ps),
+      alps::model_helper<>(*this, ps),
+      params(ps),
       done(false)
 {}
 
@@ -57,7 +185,42 @@ fulldiag_worker::progress() const
 void
 fulldiag_worker::run(alps::ObservableSet& obs)
 {
+    typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;
+    typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
+
+    typedef boost::numeric::ublas::vector<double> vector_type;
+
+    if (done) { return; }
     done = true;
+
+    double beta = 1.0;
+    if (params.defined("T")) {
+        beta = 1.0 / alps::evaluate<double>("beta", params);
+    }
+
+    alps::basis_states<short>
+        basis_set(alps::basis_states_descriptor<short>(model().basis(), graph()));
+    std::size_t dim = basis_set.size();
+
+    matrix_type Hamiltonian(dim, dim);
+    Hamiltonian.clear();
+    BOOST_FOREACH(site_descriptor s, sites()) {
+        add_to_matrix(Hamiltonian, model(), model().basis(), basis_set, s, graph(), params);
+    }
+    BOOST_FOREACH(bond_descriptor b, bonds()) {
+        add_to_matrix(Hamiltonian, model(), model().basis(), basis_set, b, source(b, graph()), target(b, graph()), graph(), params);
+    }
+    diagonal_matrix_type diagonal_energy(dim);
+    for (std::size_t i = 0; i < dim; ++i) {
+        diagonal_energy(i) = Hamiltonian(i, i);
+    }
+
+    vector_type evals(dim);
+    std::cerr << "start diagonalization... " << std::flush;
+    diagonalize(Hamiltonian, evals);
+    std::cerr << "done\n";
+
+    std::cout << "Ground state energy: " << evals(0) << std::endl;
 }
 
 void
