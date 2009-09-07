@@ -139,6 +139,22 @@ add_to_matrix(
     }
 }
 
+template <class V>
+std::pair<double, double>
+static_average2(double beta, V const& evals)
+{
+    typedef V vector_type;
+    double val  = 0.0;
+    double val2 = 0.0;
+    double offset = evals(0);
+    BOOST_REVERSE_FOREACH(typename vector_type::value_type const& eval, evals) {
+        double weight = std::exp(-beta * (eval - offset));
+        val  += eval * weight;
+        val2 += alps::abs2(eval) * weight;
+    }
+    return std::make_pair(val, val2);
+}
+
 template <typename T, typename R, typename A, typename V>
 void
 diagonalize(
@@ -260,6 +276,31 @@ fulldiag_worker::run(alps::ObservableSet& obs)
     BOOST_REVERSE_FOREACH(double eval, evals) {
         double weight = std::exp(-beta * (eval - E0));
         Z += weight;
+    }
+
+    double ene, ene2;
+    boost::tie(ene, ene2) = static_average2(beta, evals);
+    ene  = ene  / Z;
+    ene2 = ene2 / Z / alps::abs2(volume());
+    double fene = E0 - std::log(Z) / beta;
+    m["Ground State Energy"] = E0;
+    m["Ground State Energy Densty" ] = E0 / volume();
+    m["Energy"] = ene;
+    m["Energy Density"] = ene / volume();
+    m["Specific Heat"] = alps::abs2(beta) * volume() * (ene2 - alps::abs2(ene / volume()));
+    m["Free Energy"] = fene;
+    m["Free Energy Density"] = fene / volume();
+    m["Entropy"] = beta * (ene - fene);
+    m["Entropy Density"] = beta * (ene - fene) / volume();
+
+    // Store measurements
+    typedef std::pair<std::string, double> pair_type;
+    BOOST_FOREACH(pair_type const& p, m) {
+        obs << alps::SimpleRealObservable(p.first);
+    }
+    obs.reset(true);
+    BOOST_FOREACH(pair_type const& p, m) {
+        obs[p.first] << p.second;
     }
 }
 
