@@ -199,6 +199,13 @@ fulldiag_worker::run(alps::ObservableSet& obs)
         beta = 1.0 / alps::evaluate<double>("T", params);
     }
 
+    // measurements
+    std::map<std::string, double> m;
+    m["Temperature"] = 1.0 / beta;
+    m["Inverse Temperature"] = beta;
+    m["Number of Sites"] = num_sites();
+    m["Volume"] = volume();
+
     // generate basis set
     alps::basis_states<short>
         basis_set(alps::basis_states_descriptor<short>(model().basis(), graph()));
