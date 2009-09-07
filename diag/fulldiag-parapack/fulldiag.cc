@@ -50,7 +50,6 @@ void
 add_to_matrix(
     M& matrix,
     alps::HamiltonianDescriptor<I> const& hd,
-    alps::BasisDescriptor<I> const& basis,
     alps::basis_states<I> const& basis_set,
     typename alps::graph_traits<G>::vertex_descriptor const& vd,
     G const& graph,
@@ -58,6 +57,8 @@ add_to_matrix(
 {
     typedef typename M::value_type value_type;
     typedef alps::basis_states<I> basis_set_type;
+
+    alps::BasisDescriptor<I> const& basis(hd.basis());
 
     int t = get(alps::site_type_t(),  graph, vd);
     int s = get(alps::site_index_t(), graph, vd);
@@ -198,14 +199,16 @@ fulldiag_worker::run(alps::ObservableSet& obs)
         beta = 1.0 / alps::evaluate<double>("T", params);
     }
 
+    // generate basis set
     alps::basis_states<short>
         basis_set(alps::basis_states_descriptor<short>(model().basis(), graph()));
     std::size_t dim = basis_set.size();
 
+    // generate Hamiltonian matrix
     matrix_type Hamiltonian(dim, dim);
     Hamiltonian.clear();
     BOOST_FOREACH(site_descriptor s, sites()) {
-        add_to_matrix(Hamiltonian, model(), model().basis(), basis_set, s, graph(), params);
+        add_to_matrix(Hamiltonian, model(), basis_set, s, graph(), params);
     }
     BOOST_FOREACH(bond_descriptor b, bonds()) {
         add_to_matrix(Hamiltonian, model(), model().basis(), basis_set, b, source(b, graph()), target(b, graph()), graph(), params);
