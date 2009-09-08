@@ -1,7 +1,9 @@
-SOURCES	= sparsediag.cc sparsediag.h fulldiag.cc fulldiag.h common.h
+dist_noinst_HEADERS = sparsediag.h fulldiag.h common.h
+
+SOURCES	= sparsediag.cc fulldiag.cc $(dist_noinst_HEADERS)
 
 bin_PROGRAMS =
-if BUILD_DIAG_FULLDIAG_PARAPACK
+if BUILD_DIAG_PARAPACK
 bin_PROGRAMS += diag-parapack
 if HAVE_MPI
 bin_PROGRAMS += diag-parapack-mpi
@@ -15,9 +17,11 @@ diag_parapack_mpi_LDFLAGS = @LDFLAGS_MPI@
 diag_parapack_mpi_LDADD = @LIBS_MPI@
 
 check_PROGRAMS	=
-if BUILD_DIAG_FULLDIAG_PARAPACK
+if BUILD_DIAG_PARAPACK
 check_PROGRAMS	+= diag-parapack_ns
 endif
+
+dist_noinst_DATA = fulldiag_ns.ip sparsediag_ns.ip
 
 diag_parapack_ns_SOURCES	= diag_ns.cc $(SOURCES)
 

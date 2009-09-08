@@ -762,8 +762,8 @@ EXIST_TEST_CHECKSIGN_FALSE
 EXIST_TEST_CHECKSIGN_TRUE
 EXIST_TEST_SPARSEDIAG_FALSE
 EXIST_TEST_SPARSEDIAG_TRUE
-EXIST_TEST_FULLDIAG_PARAPACK_FALSE
-EXIST_TEST_FULLDIAG_PARAPACK_TRUE
+EXIST_TEST_DIAG_PARAPACK_FALSE
+EXIST_TEST_DIAG_PARAPACK_TRUE
 EXIST_TEST_FULLDIAG_FALSE
 EXIST_TEST_FULLDIAG_TRUE
 EXIST_TEST_FALSE
@@ -822,10 +822,10 @@ BUILD_DIAG_SPARSEDIAG_FALSE
 BUILD_DIAG_SPARSEDIAG_TRUE
 EXIST_DIAG_SPARSEDIAG_FALSE
 EXIST_DIAG_SPARSEDIAG_TRUE
-BUILD_DIAG_FULLDIAG_PARAPACK_FALSE
-BUILD_DIAG_FULLDIAG_PARAPACK_TRUE
-EXIST_DIAG_FULLDIAG_PARAPACK_FALSE
-EXIST_DIAG_FULLDIAG_PARAPACK_TRUE
+BUILD_DIAG_PARAPACK_FALSE
+BUILD_DIAG_PARAPACK_TRUE
+EXIST_DIAG_PARAPACK_FALSE
+EXIST_DIAG_PARAPACK_TRUE
 BUILD_DIAG_FULLDIAG_FALSE
 BUILD_DIAG_FULLDIAG_TRUE
 EXIST_DIAG_FULLDIAG_FALSE
@@ -3155,8 +3155,8 @@ fi
 if test "$ac_cv_have_lapack" != yes; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: LAPACK library not found. diag/fulldiag will not be built." >&5
 $as_echo "$as_me: LAPACK library not found. diag/fulldiag will not be built." >&6;}
-  { $as_echo "$as_me:${as_lineno-$LINENO}: LAPACK library not found. diag/fulldiag-parapack will not be built." >&5
-$as_echo "$as_me: LAPACK library not found. diag/fulldiag-parapack will not be built." >&6;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: LAPACK library not found. diag/parapack will not be built." >&5
+$as_echo "$as_me: LAPACK library not found. diag/parapack will not be built." >&6;}
   { $as_echo "$as_me:${as_lineno-$LINENO}: LAPACK library not found. diag/sparsediag will not be built." >&5
 $as_echo "$as_me: LAPACK library not found. diag/sparsediag will not be built." >&6;}
   { $as_echo "$as_me:${as_lineno-$LINENO}: LAPACK library not found. dmrg/dmrg will not be built." >&5
@@ -14613,8 +14613,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
   if test "$ac_cv_have_ietl" != yes; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: IETL library not found. sparsediag will not be built." >&5
-$as_echo "$as_me: IETL library not found. sparsediag will not be built." >&6;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: IETL library not found. diag/sparsediag will not be built." >&5
+$as_echo "$as_me: IETL library not found. diag/sparsediag will not be built." >&6;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: IETL library not found. diag/parapack will not be built." >&5
+$as_echo "$as_me: IETL library not found. diag/parapack will not be built." >&6;}
     { $as_echo "$as_me:${as_lineno-$LINENO}: IETL library not found. dmrg/interacting will not be built." >&5
 $as_echo "$as_me: IETL library not found. dmrg/interacting will not be built." >&6;}
   fi
@@ -14905,10 +14907,10 @@ LIBS_MPI="$LPSOLVE_LIBS $ac_cv_alps_libs_mpi"
 exist_diag=no
 exist_diag_fulldiag=no
 build_diag_fulldiag=no
-exist_diag_fulldiag_parapack=no
-build_diag_fulldiag_parapack=no
 exist_diag_sparsediag=no
 build_diag_sparsediag=no
+exist_diag_parapack=no
+build_diag_parapack=no
 if test -f "$srcdir/diag/Makefile.in"; then
   exist_diag=yes
     if test -f "$srcdir/diag/fulldiag/Makefile.in"; then
@@ -14917,10 +14919,10 @@ if test -f "$srcdir/diag/Makefile.in"; then
       build_diag_fulldiag=yes
     fi
   fi
-    if test -f "$srcdir/diag/fulldiag-parapack/Makefile.in"; then
-    exist_diag_fulldiag_parapack=yes
-    if test "$ac_cv_have_lapack" = yes; then
-      build_diag_fulldiag_parapack=yes
+    if test -f "$srcdir/diag/parapack/Makefile.in"; then
+    exist_diag_parapack=yes
+    if test "$ac_cv_have_lapack" = yes && test "$ac_cv_have_ietl" = yes; then
+      build_diag_parapack=yes
     fi
   fi
     if test -f "$srcdir/diag/sparsediag/Makefile.in"; then
@@ -14954,20 +14956,20 @@ else
   BUILD_DIAG_FULLDIAG_FALSE=
 fi
 
- if test "$exist_diag_fulldiag_parapack" = yes; then
-  EXIST_DIAG_FULLDIAG_PARAPACK_TRUE=
-  EXIST_DIAG_FULLDIAG_PARAPACK_FALSE='#'
+ if test "$exist_diag_parapack" = yes; then
+  EXIST_DIAG_PARAPACK_TRUE=
+  EXIST_DIAG_PARAPACK_FALSE='#'
 else
-  EXIST_DIAG_FULLDIAG_PARAPACK_TRUE='#'
-  EXIST_DIAG_FULLDIAG_PARAPACK_FALSE=
+  EXIST_DIAG_PARAPACK_TRUE='#'
+  EXIST_DIAG_PARAPACK_FALSE=
 fi
 
- if test "$build_diag_fulldiag_parapack" = yes; then
-  BUILD_DIAG_FULLDIAG_PARAPACK_TRUE=
-  BUILD_DIAG_FULLDIAG_PARAPACK_FALSE='#'
+ if test "$build_diag_parapack" = yes; then
+  BUILD_DIAG_PARAPACK_TRUE=
+  BUILD_DIAG_PARAPACK_FALSE='#'
 else
-  BUILD_DIAG_FULLDIAG_PARAPACK_TRUE='#'
-  BUILD_DIAG_FULLDIAG_PARAPACK_FALSE=
+  BUILD_DIAG_PARAPACK_TRUE='#'
+  BUILD_DIAG_PARAPACK_FALSE=
 fi
 
  if test "$exist_diag_sparsediag" = yes; then
@@ -15332,12 +15334,12 @@ else
   EXIST_TEST_FULLDIAG_FALSE=
 fi
 
- if test "$exist_test_fulldiag_parapack" = yes; then
-  EXIST_TEST_FULLDIAG_PARAPACK_TRUE=
-  EXIST_TEST_FULLDIAG_PARAPACK_FALSE='#'
+ if test "$exist_test_diag_parapack" = yes; then
+  EXIST_TEST_DIAG_PARAPACK_TRUE=
+  EXIST_TEST_DIAG_PARAPACK_FALSE='#'
 else
-  EXIST_TEST_FULLDIAG_PARAPACK_TRUE='#'
-  EXIST_TEST_FULLDIAG_PARAPACK_FALSE=
+  EXIST_TEST_DIAG_PARAPACK_TRUE='#'
+  EXIST_TEST_DIAG_PARAPACK_FALSE=
 fi
 
  if test "$exist_test_sparsediag" = yes; then
@@ -15422,7 +15424,7 @@ test "$exist_diag" = yes && ac_config_files="$ac_config_files diag/Makefile"
 
 test "$exist_diag_fulldiag" = yes && ac_config_files="$ac_config_files diag/fulldiag/Makefile"
 
-test "$exist_diag_fulldiag_parapack" = yes && ac_config_files="$ac_config_files diag/fulldiag-parapack/Makefile"
+test "$exist_diag_parapack" = yes && ac_config_files="$ac_config_files diag/parapack/Makefile"
 
 test "$exist_diag_sparsediag" = yes && ac_config_files="$ac_config_files diag/sparsediag/Makefile"
 
@@ -15457,7 +15459,7 @@ test "$exist_test" = yes && ac_config_files="$ac_config_files test/Makefile test
 
 test "$exist_test_fulldiag" = yes && ac_config_files="$ac_config_files test/fulldiag/Makefile"
 
-test "$exist_test_fulldiag_parapack" = yes && ac_config_files="$ac_config_files test/fulldiag-parapack/Makefile"
+test "$exist_test_diag_parapack" = yes && ac_config_files="$ac_config_files test/diag-parapack/Makefile"
 
 test "$exist_test_sparsediag" = yes && ac_config_files="$ac_config_files test/sparsediag/Makefile test/sparsediag/groundstate.xsl"
 
@@ -15575,12 +15577,12 @@ if test -z "${BUILD_DIAG_FULLDIAG_TRUE}" && test -z "${BUILD_DIAG_FULLDIAG_FALSE
   as_fn_error "conditional \"BUILD_DIAG_FULLDIAG\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${EXIST_DIAG_FULLDIAG_PARAPACK_TRUE}" && test -z "${EXIST_DIAG_FULLDIAG_PARAPACK_FALSE}"; then
-  as_fn_error "conditional \"EXIST_DIAG_FULLDIAG_PARAPACK\" was never defined.
+if test -z "${EXIST_DIAG_PARAPACK_TRUE}" && test -z "${EXIST_DIAG_PARAPACK_FALSE}"; then
+  as_fn_error "conditional \"EXIST_DIAG_PARAPACK\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${BUILD_DIAG_FULLDIAG_PARAPACK_TRUE}" && test -z "${BUILD_DIAG_FULLDIAG_PARAPACK_FALSE}"; then
-  as_fn_error "conditional \"BUILD_DIAG_FULLDIAG_PARAPACK\" was never defined.
+if test -z "${BUILD_DIAG_PARAPACK_TRUE}" && test -z "${BUILD_DIAG_PARAPACK_FALSE}"; then
+  as_fn_error "conditional \"BUILD_DIAG_PARAPACK\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${EXIST_DIAG_SPARSEDIAG_TRUE}" && test -z "${EXIST_DIAG_SPARSEDIAG_FALSE}"; then
@@ -15699,8 +15701,8 @@ if test -z "${EXIST_TEST_FULLDIAG_TRUE}" && test -z "${EXIST_TEST_FULLDIAG_FALSE
   as_fn_error "conditional \"EXIST_TEST_FULLDIAG\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${EXIST_TEST_FULLDIAG_PARAPACK_TRUE}" && test -z "${EXIST_TEST_FULLDIAG_PARAPACK_FALSE}"; then
-  as_fn_error "conditional \"EXIST_TEST_FULLDIAG_PARAPACK\" was never defined.
+if test -z "${EXIST_TEST_DIAG_PARAPACK_TRUE}" && test -z "${EXIST_TEST_DIAG_PARAPACK_FALSE}"; then
+  as_fn_error "conditional \"EXIST_TEST_DIAG_PARAPACK\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${EXIST_TEST_SPARSEDIAG_TRUE}" && test -z "${EXIST_TEST_SPARSEDIAG_FALSE}"; then
@@ -16693,7 +16695,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "diag/Makefile") CONFIG_FILES="$CONFIG_FILES diag/Makefile" ;;
     "diag/fulldiag/Makefile") CONFIG_FILES="$CONFIG_FILES diag/fulldiag/Makefile" ;;
-    "diag/fulldiag-parapack/Makefile") CONFIG_FILES="$CONFIG_FILES diag/fulldiag-parapack/Makefile" ;;
+    "diag/parapack/Makefile") CONFIG_FILES="$CONFIG_FILES diag/parapack/Makefile" ;;
     "diag/sparsediag/Makefile") CONFIG_FILES="$CONFIG_FILES diag/sparsediag/Makefile" ;;
     "dmrg/Makefile") CONFIG_FILES="$CONFIG_FILES dmrg/Makefile" ;;
     "dmrg/dmrg/Makefile") CONFIG_FILES="$CONFIG_FILES dmrg/dmrg/Makefile" ;;
@@ -16715,7 +16717,7 @@ do
     "test/parm_boson") CONFIG_FILES="$CONFIG_FILES test/parm_boson" ;;
     "test/energy.xsl") CONFIG_FILES="$CONFIG_FILES test/energy.xsl" ;;
     "test/fulldiag/Makefile") CONFIG_FILES="$CONFIG_FILES test/fulldiag/Makefile" ;;
-    "test/fulldiag-parapack/Makefile") CONFIG_FILES="$CONFIG_FILES test/fulldiag-parapack/Makefile" ;;
+    "test/diag-parapack/Makefile") CONFIG_FILES="$CONFIG_FILES test/diag-parapack/Makefile" ;;
     "test/sparsediag/Makefile") CONFIG_FILES="$CONFIG_FILES test/sparsediag/Makefile" ;;
     "test/sparsediag/groundstate.xsl") CONFIG_FILES="$CONFIG_FILES test/sparsediag/groundstate.xsl" ;;
     "test/checksign/Makefile") CONFIG_FILES="$CONFIG_FILES test/checksign/Makefile" ;;
@@ -18262,6 +18264,9 @@ if test "x$exist_diag" = xyes; then
   fi
   if test "x$exist_diag_sparsediag" = xyes; then
     echo "    Sparse               $build_diag_sparsediag"
+  fi
+  if test "x$exist_diag_parapack" = xyes; then
+    echo "    parapack             $build_diag_parapack"
   fi
 fi
 if test "x$exist_dmrg" = xyes; then

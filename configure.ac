@@ -38,7 +38,7 @@ AC_ALPS
 
 if test "$ac_cv_have_lapack" != yes; then
   AC_MSG_NOTICE([LAPACK library not found. diag/fulldiag will not be built.])
-  AC_MSG_NOTICE([LAPACK library not found. diag/fulldiag-parapack will not be built.])
+  AC_MSG_NOTICE([LAPACK library not found. diag/parapack will not be built.])
   AC_MSG_NOTICE([LAPACK library not found. diag/sparsediag will not be built.])
   AC_MSG_NOTICE([LAPACK library not found. dmrg/dmrg will not be built.])
   AC_MSG_NOTICE([LAPACK library not found. dmrg/interacting will not be built.])
@@ -74,7 +74,8 @@ dnl
 if test "$ac_cv_have_lapack" = yes; then
   AC_IETL
   if test "$ac_cv_have_ietl" != yes; then
-    AC_MSG_NOTICE([IETL library not found. sparsediag will not be built.])
+    AC_MSG_NOTICE([IETL library not found. diag/sparsediag will not be built.])
+    AC_MSG_NOTICE([IETL library not found. diag/parapack will not be built.])
     AC_MSG_NOTICE([IETL library not found. dmrg/interacting will not be built.])
   fi
 fi
@@ -118,10 +119,10 @@ dnl diag
 exist_diag=no
 exist_diag_fulldiag=no
 build_diag_fulldiag=no
-exist_diag_fulldiag_parapack=no
-build_diag_fulldiag_parapack=no
 exist_diag_sparsediag=no
 build_diag_sparsediag=no
+exist_diag_parapack=no
+build_diag_parapack=no
 if test -f "$srcdir/diag/Makefile.in"; then
   exist_diag=yes
   dnl diag/fulldiag
@@ -131,11 +132,11 @@ if test -f "$srcdir/diag/Makefile.in"; then
       build_diag_fulldiag=yes
     fi
   fi
-  dnl diag/fulldiag-parapack
-  if test -f "$srcdir/diag/fulldiag-parapack/Makefile.in"; then
-    exist_diag_fulldiag_parapack=yes
-    if test "$ac_cv_have_lapack" = yes; then
-      build_diag_fulldiag_parapack=yes
+  dnl diag/parapack
+  if test -f "$srcdir/diag/parapack/Makefile.in"; then
+    exist_diag_parapack=yes
+    if test "$ac_cv_have_lapack" = yes && test "$ac_cv_have_ietl" = yes; then
+      build_diag_parapack=yes
     fi
   fi
   dnl diag/sparsediag
@@ -149,8 +150,8 @@ fi
 AM_CONDITIONAL(EXIST_DIAG, test "$exist_diag" = yes)
 AM_CONDITIONAL(EXIST_DIAG_FULLDIAG, test "$exist_diag_fulldiag" = yes)
 AM_CONDITIONAL(BUILD_DIAG_FULLDIAG, test "$build_diag_fulldiag" = yes)
-AM_CONDITIONAL(EXIST_DIAG_FULLDIAG_PARAPACK, test "$exist_diag_fulldiag_parapack" = yes)
-AM_CONDITIONAL(BUILD_DIAG_FULLDIAG_PARAPACK, test "$build_diag_fulldiag_parapack" = yes)
+AM_CONDITIONAL(EXIST_DIAG_PARAPACK, test "$exist_diag_parapack" = yes)
+AM_CONDITIONAL(BUILD_DIAG_PARAPACK, test "$build_diag_parapack" = yes)
 AM_CONDITIONAL(EXIST_DIAG_SPARSEDIAG, test "$exist_diag_sparsediag" = yes)
 AM_CONDITIONAL(BUILD_DIAG_SPARSEDIAG, test "$build_diag_sparsediag" = yes)
 
@@ -326,7 +327,7 @@ if test -f "$srcdir/test/Makefile.in"; then
 fi
 AM_CONDITIONAL(EXIST_TEST, test "$exist_test" = yes)
 AM_CONDITIONAL(EXIST_TEST_FULLDIAG, test "$exist_test_fulldiag" = yes)
-AM_CONDITIONAL(EXIST_TEST_FULLDIAG_PARAPACK, test "$exist_test_fulldiag_parapack" = yes)
+AM_CONDITIONAL(EXIST_TEST_DIAG_PARAPACK, test "$exist_test_diag_parapack" = yes)
 AM_CONDITIONAL(EXIST_TEST_SPARSEDIAG, test "$exist_test_sparsediag" = yes)
 AM_CONDITIONAL(EXIST_TEST_CHECKSIGN, test "$exist_test_checksign" = yes)
 AM_CONDITIONAL(EXIST_TEST_LOOPER, test "$exist_test_looper" = yes)
@@ -345,7 +346,7 @@ AC_CONFIG_HEADER(config/config.h)
 AC_CONFIG_FILES(Makefile)
 test "$exist_diag" = yes && AC_CONFIG_FILES(diag/Makefile)
 test "$exist_diag_fulldiag" = yes && AC_CONFIG_FILES(diag/fulldiag/Makefile)
-test "$exist_diag_fulldiag_parapack" = yes && AC_CONFIG_FILES(diag/fulldiag-parapack/Makefile)
+test "$exist_diag_parapack" = yes && AC_CONFIG_FILES(diag/parapack/Makefile)
 test "$exist_diag_sparsediag" = yes && AC_CONFIG_FILES(diag/sparsediag/Makefile)
 test "$exist_dmrg" = yes && AC_CONFIG_FILES(dmrg/Makefile)
 test "$exist_dmrg_dmrg" = yes && AC_CONFIG_FILES(dmrg/dmrg/Makefile)
@@ -363,7 +364,7 @@ test "$exist_qmc_worms" = yes && AC_CONFIG_FILES(qmc/worms/Makefile)
 test "$exist_qmc_qwl" = yes && AC_CONFIG_FILES(qmc/qwl/Makefile)
 test "$exist_test" = yes && AC_CONFIG_FILES(test/Makefile test/parm test/parm_fermion test/parm_fermion2 test/parm_boson test/energy.xsl)
 test "$exist_test_fulldiag" = yes && AC_CONFIG_FILES(test/fulldiag/Makefile)
-test "$exist_test_fulldiag_parapack" = yes && AC_CONFIG_FILES(test/fulldiag-parapack/Makefile)
+test "$exist_test_diag_parapack" = yes && AC_CONFIG_FILES(test/diag-parapack/Makefile)
 test "$exist_test_sparsediag" = yes && AC_CONFIG_FILES(test/sparsediag/Makefile test/sparsediag/groundstate.xsl)
 test "$exist_test_checksign" = yes && AC_CONFIG_FILES(test/checksign/Makefile)
 test "$exist_test_looper" = yes && AC_CONFIG_FILES(test/looper/Makefile)
@@ -397,6 +398,9 @@ if test "x$exist_diag" = xyes; then
   fi
   if test "x$exist_diag_sparsediag" = xyes; then
     echo "    Sparse               $build_diag_sparsediag"
+  fi
+  if test "x$exist_diag_parapack" = xyes; then
+    echo "    parapack             $build_diag_parapack"
   fi
 fi
 if test "x$exist_dmrg" = xyes; then

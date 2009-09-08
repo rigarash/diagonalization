@@ -3,8 +3,8 @@ SUBDIRS =
 if EXIST_TEST_FULLDIAG
 SUBDIRS += fulldiag
 endif
-if EXIST_TEST_FULLDIAG_PARAPACK
-SUBDIRS += fulldiag-parapack
+if EXIST_TEST_DIAG_PARAPACK
+SUBDIRS += diag-parapack
 endif
 if EXIST_TEST_SPARSEDIAG
 SUBDIRS += sparsediag

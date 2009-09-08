@@ -15,6 +15,8 @@
 
 @SET_MAKE@
 
+
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -35,12 +37,13 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__append_1 = diag-parapack
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__append_2 = diag-parapack-mpi
+@BUILD_DIAG_PARAPACK_TRUE@am__append_1 = diag-parapack
+@BUILD_DIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__append_2 = diag-parapack-mpi
 check_PROGRAMS = $(am__EXEEXT_3)
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__append_3 = diag-parapack_ns
-subdir = diag/fulldiag-parapack
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+@BUILD_DIAG_PARAPACK_TRUE@am__append_3 = diag-parapack_ns
+subdir = diag/parapack
+DIST_COMMON = $(dist_noinst_DATA) $(dist_noinst_HEADERS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/config/ac_alps.m4 \
@@ -52,25 +55,25 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__EXEEXT_1 =  \
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@	diag-parapack$(EXEEXT)
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_2 = diag-parapack-mpi$(EXEEXT)
+@BUILD_DIAG_PARAPACK_TRUE@am__EXEEXT_1 = diag-parapack$(EXEEXT)
+@BUILD_DIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_2 = diag-parapack-mpi$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__EXEEXT_3 =  \
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@	diag-parapack_ns$(EXEEXT)
+@BUILD_DIAG_PARAPACK_TRUE@am__EXEEXT_3 = diag-parapack_ns$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = sparsediag.$(OBJEXT) fulldiag.$(OBJEXT)
-am_diag_parapack_OBJECTS = main.$(OBJEXT) $(am__objects_1)
+am__objects_1 =
+am__objects_2 = sparsediag.$(OBJEXT) fulldiag.$(OBJEXT) \
+	$(am__objects_1)
+am_diag_parapack_OBJECTS = main.$(OBJEXT) $(am__objects_2)
 diag_parapack_OBJECTS = $(am_diag_parapack_OBJECTS)
 diag_parapack_LDADD = $(LDADD)
 diag_parapack_DEPENDENCIES =
-am_diag_parapack_mpi_OBJECTS = main.$(OBJEXT) $(am__objects_1)
+am_diag_parapack_mpi_OBJECTS = main.$(OBJEXT) $(am__objects_2)
 diag_parapack_mpi_OBJECTS = $(am_diag_parapack_mpi_OBJECTS)
 diag_parapack_mpi_DEPENDENCIES =
 diag_parapack_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(diag_parapack_mpi_LDFLAGS) $(LDFLAGS) -o $@
-am_diag_parapack_ns_OBJECTS = diag_ns.$(OBJEXT) $(am__objects_1)
+am_diag_parapack_ns_OBJECTS = diag_ns.$(OBJEXT) $(am__objects_2)
 diag_parapack_ns_OBJECTS = $(am_diag_parapack_ns_OBJECTS)
 diag_parapack_ns_LDADD = $(LDADD)
 diag_parapack_ns_DEPENDENCIES =
@@ -97,6 +100,8 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 DIST_SOURCES = $(diag_parapack_SOURCES) $(diag_parapack_mpi_SOURCES) \
 	$(diag_parapack_ns_SOURCES)
+DATA = $(dist_noinst_DATA)
+HEADERS = $(dist_noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -225,11 +230,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SOURCES = sparsediag.cc sparsediag.h fulldiag.cc fulldiag.h common.h
+dist_noinst_HEADERS = sparsediag.h fulldiag.h common.h
+SOURCES = sparsediag.cc fulldiag.cc $(dist_noinst_HEADERS)
 diag_parapack_SOURCES = main.cc $(SOURCES)
 diag_parapack_mpi_SOURCES = main.cc $(SOURCES)
 diag_parapack_mpi_LDFLAGS = @LDFLAGS_MPI@
 diag_parapack_mpi_LDADD = @LIBS_MPI@
+dist_noinst_DATA = fulldiag_ns.ip sparsediag_ns.ip
 diag_parapack_ns_SOURCES = diag_ns.cc $(SOURCES)
 all: all-am
 
@@ -244,9 +251,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign diag/fulldiag-parapack/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign diag/parapack/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign diag/fulldiag-parapack/Makefile
+	  $(AUTOMAKE) --foreign diag/parapack/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -450,7 +457,7 @@ distdir: $(DISTFILES)
 check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 check: check-am
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(PROGRAMS) $(DATA) $(HEADERS)
 installdirs:
 	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \

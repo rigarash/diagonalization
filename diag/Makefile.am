@@ -5,8 +5,8 @@ endif
 if EXIST_DIAG_SPARSEDIAG
 SUBDIRS += sparsediag
 endif
-if EXIST_DIAG_FULLDIAG_PARAPACK
-SUBDIRS += fulldiag-parapack
+if EXIST_DIAG_PARAPACK
+SUBDIRS += parapack
 endif
 SUBDIRS += .
 DIST_SUBDIRS = $(SUBDIRS)
