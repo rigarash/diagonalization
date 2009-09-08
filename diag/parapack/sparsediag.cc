@@ -25,11 +25,11 @@
 
 #include "common.h"
 #include "sparsediag.h"
+#include "ietl_interface.h"
 
 #include <alps/parameter.h>
 #include <alps/alea.h>
 
-#include <ietl/interface/ublas.h>
 #include <ietl/vectorspace.h>
 #include <ietl/lanczos.h>
 
