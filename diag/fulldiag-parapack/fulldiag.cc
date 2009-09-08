@@ -24,13 +24,15 @@
 *
 *****************************************************************************/
 
+#include "common.h"
 #include "fulldiag.h"
 
 #include <alps/parameter.h>
 #include <alps/alea.h>
 
 #include <boost/foreach.hpp>
-#include <boost/multi_array.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits.hpp>
 
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -44,116 +46,6 @@
 #include <cstddef>
 
 namespace {
-
-template <typename M, typename I, typename G>
-void
-add_to_matrix(
-    M& matrix,
-    alps::HamiltonianDescriptor<I> const& hd,
-    alps::basis_states<I> const& basis_set,
-    typename alps::graph_traits<G>::vertex_descriptor const& vd,
-    G const& graph,
-    alps::Parameters const& params)
-{
-    typedef typename M::value_type value_type;
-    typedef alps::basis_states<I> basis_set_type;
-
-    alps::BasisDescriptor<I> const& basis(hd.basis());
-
-    int t = get(alps::site_type_t(),  graph, vd);
-    int s = get(alps::site_index_t(), graph, vd);
-    std::size_t dim = basis_set.size();
-    std::size_t ds  = basis_set.basis().get_site_basis(s).num_states();
-
-    boost::multi_array<value_type, 2>
-        site_matrix(
-            alps::get_matrix(value_type(),
-                             hd.site_term(t),
-                             basis.site_basis(t),
-                             params));
-
-    for (std::size_t i = 0; i < dim; ++i) {
-        std::size_t is = basis_set[i][s];
-        for (std::size_t js = 0; js < ds; ++js) {
-            typename basis_set_type::value_type target(basis_set[i]);
-            target[s] = js;
-            std::size_t j = basis_set.index(target);
-            if (j < dim) {
-                matrix(i, j) += site_matrix[is][js];
-            }
-        }
-    }
-}
-
-template <typename M, typename I, typename G>
-void
-add_to_matrix(
-    M& matrix,
-    alps::HamiltonianDescriptor<I> const& hd,
-    alps::basis_states<I> const& basis_set,
-    typename alps::graph_traits<G>::bond_descriptor const& ed,
-    G const& graph,
-    alps::Parameters const& params)
-{
-    typedef typename M::value_type value_type;
-    typedef alps::basis_states<I> basis_set_type;
-
-    alps::BasisDescriptor<I> const& basis(hd.basis());
-
-    typename alps::graph_traits<G>::site_descriptor const& vd0 =
-        alps::detail::source_wrap<G>(ed, graph);
-    typename alps::graph_traits<G>::site_descriptor const& vd1 =
-        alps::detail::target_wrap<G>(ed, graph);
-
-    int t   = get(alps::bond_type_t(), graph, ed);
-    int st0 = get(alps::site_type_t(), graph, vd0);
-    int st1 = get(alps::site_type_t(), graph, vd1);
-    int s0  = get(alps::site_index_t(), graph, vd0);
-    int s1  = get(alps::site_index_t(), graph, vd1);
-    std::size_t dim = basis_set.size();
-    std::size_t ds0 = basis_set.basis().get_site_basis(s0).num_states();
-    std::size_t ds1 = basis_set.basis().get_site_basis(s1).num_states();
-
-    boost::multi_array<value_type, 4>
-        bond_matrix(
-            alps::get_matrix(value_type(),
-                             hd.bond_term(t),
-                             basis.site_basis(st0),
-                             basis.site_basis(st1),
-                             params));
-
-    for (std::size_t i = 0; i < dim; ++i) {
-        std::size_t is0 = basis_set[i][s0];
-        std::size_t is1 = basis_set[i][s1];
-        for (std::size_t js0 = 0; js0 < ds0; ++js0) {
-            for (std::size_t js1 = 0; js1 < ds1; ++js1) {
-                typename basis_set_type::value_type target(basis_set[i]);
-                target[s0] = js0;
-                target[s1] = js1;
-                std::size_t j = basis_set.index(target);
-                if (j < dim) {
-                    matrix(i, j) += bond_matrix[is0][is1][js0][js1];
-                }
-            }
-        }
-    }
-}
-
-template <class V>
-std::pair<double, double>
-static_average2(double beta, V const& evals)
-{
-    typedef V vector_type;
-    double val  = 0.0;
-    double val2 = 0.0;
-    double offset = evals(0);
-    BOOST_REVERSE_FOREACH(typename vector_type::value_type const& eval, evals) {
-        double weight = std::exp(-beta * (eval - offset));
-        val  += eval * weight;
-        val2 += alps::abs2(eval) * weight;
-    }
-    return std::make_pair(val, val2);
-}
 
 template <typename T, typename R, typename A, typename V>
 void
