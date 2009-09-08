@@ -72,7 +72,7 @@ copy(boost::numeric::ublas::vector<T> const& x,
 template <typename M, typename T>
 inline
 void
-mult(M& m,
+mult(M const& m,
      boost::numeric::ublas::vector<T> const& x,
      boost::numeric::ublas::vector<T>& y) {
     boost::numeric::ublas::axpy_prod(m, x, y, true);
