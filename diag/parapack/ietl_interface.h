@@ -76,7 +76,6 @@ mult(M& m,
      boost::numeric::ublas::vector<T> const& x,
      boost::numeric::ublas::vector<T>& y) {
     boost::numeric::ublas::axpy_prod(m, x, y, true);
-//    y = boost::numeric::ublas::prod(m, x);
 }
 
 } // end namespace ietl
