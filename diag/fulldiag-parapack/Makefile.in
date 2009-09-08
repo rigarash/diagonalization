@@ -35,10 +35,10 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2)
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__append_1 = fulldiag-parapack
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__append_2 = fulldiag-parapack-mpi
+@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__append_1 = diag-parapack
+@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__append_2 = diag-parapack-mpi
 check_PROGRAMS = $(am__EXEEXT_3)
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__append_3 = fulldiag-parapack_ns
+@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__append_3 = diag-parapack_ns
 subdir = diag/fulldiag-parapack
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -53,27 +53,27 @@ CONFIG_HEADER = $(top_builddir)/config/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 @BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__EXEEXT_1 =  \
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@	fulldiag-parapack$(EXEEXT)
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_2 = fulldiag-parapack-mpi$(EXEEXT)
+@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@	diag-parapack$(EXEEXT)
+@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@@HAVE_MPI_TRUE@am__EXEEXT_2 = diag-parapack-mpi$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(bindir)"
-@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__EXEEXT_3 = fulldiag-parapack_ns$(EXEEXT)
+@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@am__EXEEXT_3 =  \
+@BUILD_DIAG_FULLDIAG_PARAPACK_TRUE@	diag-parapack_ns$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
-am__objects_1 = fulldiag.$(OBJEXT)
-am_fulldiag_parapack_OBJECTS = main.$(OBJEXT) $(am__objects_1)
-fulldiag_parapack_OBJECTS = $(am_fulldiag_parapack_OBJECTS)
-fulldiag_parapack_LDADD = $(LDADD)
-fulldiag_parapack_DEPENDENCIES =
-am_fulldiag_parapack_mpi_OBJECTS = main.$(OBJEXT) $(am__objects_1)
-fulldiag_parapack_mpi_OBJECTS = $(am_fulldiag_parapack_mpi_OBJECTS)
-fulldiag_parapack_mpi_DEPENDENCIES =
-fulldiag_parapack_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+am__objects_1 = sparsediag.$(OBJEXT) fulldiag.$(OBJEXT)
+am_diag_parapack_OBJECTS = main.$(OBJEXT) $(am__objects_1)
+diag_parapack_OBJECTS = $(am_diag_parapack_OBJECTS)
+diag_parapack_LDADD = $(LDADD)
+diag_parapack_DEPENDENCIES =
+am_diag_parapack_mpi_OBJECTS = main.$(OBJEXT) $(am__objects_1)
+diag_parapack_mpi_OBJECTS = $(am_diag_parapack_mpi_OBJECTS)
+diag_parapack_mpi_DEPENDENCIES =
+diag_parapack_mpi_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(fulldiag_parapack_mpi_LDFLAGS) $(LDFLAGS) -o $@
-am_fulldiag_parapack_ns_OBJECTS = fulldiag_ns.$(OBJEXT) \
-	$(am__objects_1)
-fulldiag_parapack_ns_OBJECTS = $(am_fulldiag_parapack_ns_OBJECTS)
-fulldiag_parapack_ns_LDADD = $(LDADD)
-fulldiag_parapack_ns_DEPENDENCIES =
+	$(CXXFLAGS) $(diag_parapack_mpi_LDFLAGS) $(LDFLAGS) -o $@
+am_diag_parapack_ns_OBJECTS = diag_ns.$(OBJEXT) $(am__objects_1)
+diag_parapack_ns_OBJECTS = $(am_diag_parapack_ns_OBJECTS)
+diag_parapack_ns_LDADD = $(LDADD)
+diag_parapack_ns_DEPENDENCIES =
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -95,9 +95,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-DIST_SOURCES = $(fulldiag_parapack_SOURCES) \
-	$(fulldiag_parapack_mpi_SOURCES) \
-	$(fulldiag_parapack_ns_SOURCES)
+DIST_SOURCES = $(diag_parapack_SOURCES) $(diag_parapack_mpi_SOURCES) \
+	$(diag_parapack_ns_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -226,12 +225,12 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SOURCES = fulldiag.cc fulldiag.h common.h
-fulldiag_parapack_SOURCES = main.cc $(SOURCES)
-fulldiag_parapack_mpi_SOURCES = main.cc $(SOURCES)
-fulldiag_parapack_mpi_LDFLAGS = @LDFLAGS_MPI@
-fulldiag_parapack_mpi_LDADD = @LIBS_MPI@
-fulldiag_parapack_ns_SOURCES = fulldiag_ns.cc $(SOURCES)
+SOURCES = sparsediag.cc sparsediag.h fulldiag.cc fulldiag.h common.h
+diag_parapack_SOURCES = main.cc $(SOURCES)
+diag_parapack_mpi_SOURCES = main.cc $(SOURCES)
+diag_parapack_mpi_LDFLAGS = @LDFLAGS_MPI@
+diag_parapack_mpi_LDADD = @LIBS_MPI@
+diag_parapack_ns_SOURCES = diag_ns.cc $(SOURCES)
 all: all-am
 
 .SUFFIXES:
@@ -318,15 +317,15 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-fulldiag-parapack$(EXEEXT): $(fulldiag_parapack_OBJECTS) $(fulldiag_parapack_DEPENDENCIES) 
-	@rm -f fulldiag-parapack$(EXEEXT)
-	$(CXXLINK) $(fulldiag_parapack_OBJECTS) $(fulldiag_parapack_LDADD) $(LIBS)
-fulldiag-parapack-mpi$(EXEEXT): $(fulldiag_parapack_mpi_OBJECTS) $(fulldiag_parapack_mpi_DEPENDENCIES) 
-	@rm -f fulldiag-parapack-mpi$(EXEEXT)
-	$(fulldiag_parapack_mpi_LINK) $(fulldiag_parapack_mpi_OBJECTS) $(fulldiag_parapack_mpi_LDADD) $(LIBS)
-fulldiag-parapack_ns$(EXEEXT): $(fulldiag_parapack_ns_OBJECTS) $(fulldiag_parapack_ns_DEPENDENCIES) 
-	@rm -f fulldiag-parapack_ns$(EXEEXT)
-	$(CXXLINK) $(fulldiag_parapack_ns_OBJECTS) $(fulldiag_parapack_ns_LDADD) $(LIBS)
+diag-parapack$(EXEEXT): $(diag_parapack_OBJECTS) $(diag_parapack_DEPENDENCIES) 
+	@rm -f diag-parapack$(EXEEXT)
+	$(CXXLINK) $(diag_parapack_OBJECTS) $(diag_parapack_LDADD) $(LIBS)
+diag-parapack-mpi$(EXEEXT): $(diag_parapack_mpi_OBJECTS) $(diag_parapack_mpi_DEPENDENCIES) 
+	@rm -f diag-parapack-mpi$(EXEEXT)
+	$(diag_parapack_mpi_LINK) $(diag_parapack_mpi_OBJECTS) $(diag_parapack_mpi_LDADD) $(LIBS)
+diag-parapack_ns$(EXEEXT): $(diag_parapack_ns_OBJECTS) $(diag_parapack_ns_DEPENDENCIES) 
+	@rm -f diag-parapack_ns$(EXEEXT)
+	$(CXXLINK) $(diag_parapack_ns_OBJECTS) $(diag_parapack_ns_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -334,9 +333,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/diag_ns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fulldiag.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fulldiag_ns.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sparsediag.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
