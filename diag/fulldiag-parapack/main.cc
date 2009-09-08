@@ -1,7 +1,7 @@
 /*****************************************************************************
 *
-* ALPS/fulldiag-parapack: Full diagonalization for quantum lattice systems
-*                         using parapack scheduler
+* ALPS/diag/parapack: Full and Sparse diagonalization
+*                     for quantum lattice models using parapack scheduler
 *
 * Copyright (C) 2003-2009 by Synge Todo <wistaria@comp-phys.org>,
 *                            Ryo IGARASHI <rigarash@hosi.phys.s.u-tokyo.ac.jp>
@@ -24,14 +24,14 @@
 *
 *****************************************************************************/
 
-#define FULLDIAG_PARAPACK_VERSION "0.1-20090907"
-#define FULLDIAG_PARAPACK_DATE    "2009/09/07"
+#define DIAG_PARAPACK_VERSION "0.2-20090908"
+#define DIAG_PARAPACK_DATE    "2009/09/08"
 
-#define FULLDIAG_PARAPACK_VERSION_STRING "ALPS/fulldiag-parapack version " \
-    FULLDIAG_PARAPACK_VERSION " (" FULLDIAG_PARAPACK_DATE ")"
+#define DIAG_PARAPACK_VERSION_STRING "ALPS/diag/parapack version " \
+    DIAG_PARAPACK_VERSION " (" DIAG_PARAPACK_DATE ")"
 
-#define FULLDIAG_PARAPACK_COPYRIGHT FULLDIAG_PARAPACK_VERSION_STRING "\n" \
-    "  Full diagonalization for quantum lattice systems using parapack scheduler \n" \
+#define DIAG_PARAPACK_COPYRIGHT DIAG_PARAPACK_VERSION_STRING "\n" \
+    "  Full and Sparse diagonalization for quantum lattice models using parapack scheduler \n" \
     "  Copyright (c) 1997-2009 by Synge Todo <wistaria@comp-phys.org>,\n" \
     "                             Ryo IGARASHI <rigarash@hosi.phys.s.u-tokyo.ac.jp>\n" \
 
@@ -42,5 +42,5 @@ main(int argc, char** argv) {
     return alps::parapack::start(argc, argv);
 }
 
-PARAPACK_SET_COPYRIGHT(FULLDIAG_PARAPACK_COPYRIGHT)
-PARAPACK_SET_VERSION(FULLDIAG_PARAPACK_VERSION_STRING)
+PARAPACK_SET_COPYRIGHT(DIAG_PARAPACK_COPYRIGHT)
+PARAPACK_SET_VERSION(DIAG_PARAPACK_VERSION_STRING)

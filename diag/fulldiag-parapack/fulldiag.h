@@ -1,7 +1,7 @@
 /*****************************************************************************
 *
-* ALPS/fulldiag-parapack: Full diagonalization for quantum lattice systems
-*                         using parapack scheduler
+* ALPS/diag/parapack: Full and Sparse diagonalization
+*                     for quantum lattice models using parapack scheduler
 *
 * Copyright (C) 2003-2009 by Synge Todo <wistaria@comp-phys.org>,
 *                            Ryo IGARASHI <rigarash@hosi.phys.s.u-tokyo.ac.jp>
@@ -23,6 +23,9 @@
 * DEALINGS IN THE SOFTWARE.
 *
 *****************************************************************************/
+
+#ifndef ALPS_DIAG_PARAPACK_FULLDIAG_H_
+#define ALPS_DIAG_PARAPACK_FULLDIAG_H_
 
 #include <alps/lattice.h>
 #include <alps/model.h>
@@ -59,3 +62,5 @@ class fulldiag_worker
 
 } // end namespace diag
 } // end namespace alps
+
+#endif // ALPS_DIAG_PARAPACK_FULLDIAG_H_
