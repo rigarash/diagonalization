@@ -35,6 +35,9 @@
 #include <ietl/traits.h>
 
 #ifdef ALPS_HAVE_MKL
+# ifdef _OPENMP
+#  include <omp.h>
+# endif
 # include <mkl_spblas.h>
 # include <vector>
 #endif
@@ -86,33 +89,47 @@ mult(boost::numeric::ublas::compressed_matrix<T> const& m,
 #ifdef ALPS_HAVE_MKL
     char uplo = 'N';
     int rowsize = m.size1();
-    const int v_size = m.value_data().size();
-    std::vector<double> value(v_size);
-    for (std::size_t i = 0; i < v_size; ++i) {
-        value[i] = m.value_data()[i];
-    }
-    const int i1_size = m.index1_data().size();
-    std::vector<int> index1(i1_size);
-    for (std::size_t i = 0; i < i1_size; ++i) {
-        index1[i] = m.index1_data()[i];
-    }
-    const int i2_size = m.index2_data().size();
-    std::vector<int> index2(i2_size);
-    for (std::size_t i = 0; i < i2_size; ++i) {
-        index2[i] = m.index2_data()[i];
-    }
-    const int x_size = x.size();
-    std::vector<double> xtmp(x_size);
-    for (std::size_t i = 0; i < x_size; ++i) {
-        xtmp[i] = x(i);
-    }
-    const int y_size = y.size();
-    std::vector<double> ytmp(y_size);
-    for (std::size_t i = 0; i < y_size; ++i) {
-        ytmp[i] = y(i);
-    }
+    std::vector<double> value;
+    std::vector<int> index1;
+    std::vector<int> index2;
+    std::vector<double> xtmp;
+    std::vector<double> ytmp;
+#pragma omp parallel
+    {
+        const int v_size = m.value_data().size();
+        value.resize(v_size);
+#pragma omp for nowait
+        for (std::size_t i = 0; i < v_size; ++i) {
+            value[i] = m.value_data()[i];
+        }
+        const int i1_size = m.index1_data().size();
+        index1.resize(i1_size);
+#pragma omp for nowait
+        for (std::size_t i = 0; i < i1_size; ++i) {
+            index1[i] = m.index1_data()[i];
+        }
+        const int i2_size = m.index2_data().size();
+        index2.resize(i2_size);
+#pragma omp for nowait
+        for (std::size_t i = 0; i < i2_size; ++i) {
+            index2[i] = m.index2_data()[i];
+        }
+        const int x_size = x.size();
+        xtmp.resize(x_size);
+#pragma omp for nowait
+        for (std::size_t i = 0; i < x_size; ++i) {
+            xtmp[i] = x(i);
+        }
+        const int y_size = y.size();
+        ytmp.resize(y_size);
+#pragma omp for nowait
+        for (std::size_t i = 0; i < y_size; ++i) {
+            ytmp[i] = y(i);
+        }
+    } // omp parallel
     mkl_cspblas_dcsrgemv(&uplo, &rowsize, &value[0], &index1[0], &index2[0], &xtmp[0], &ytmp[0]);
-    for (std::size_t i = 0; i < y_size; ++i) {
+#pragma omp parallel for
+    for (std::size_t i = 0; i < y.size(); ++i) {
         y(i) = ytmp[i];
     }
 #else
