@@ -77,30 +77,29 @@ copy(boost::numeric::ublas::vector<T> const& x,
     y.assign(x);
 }
 
-template <typename M, typename T>
+template <typename T>
 inline
 void
-mult(M const& m,
+mult(boost::numeric::ublas::compressed_matrix<T> const& m,
      boost::numeric::ublas::vector<T> const& x,
      boost::numeric::ublas::vector<T>& y) {
 #ifdef ALPS_HAVE_MKL
-    typename boost::numeric::ublas::compressed_matrix<typename M::value_type, boost::numeric::ublas::row_major> mtmp = m;
     char uplo = 'N';
-    int rowsize = mtmp.size1();
-    const int v_size = mtmp.value_data().size();
+    int rowsize = m.size1();
+    const int v_size = m.value_data().size();
     std::vector<double> value(v_size);
     for (std::size_t i = 0; i < v_size; ++i) {
-        value[i] = mtmp.value_data()[i];
+        value[i] = m.value_data()[i];
     }
-    const int i1_size = mtmp.index1_data().size();
+    const int i1_size = m.index1_data().size();
     std::vector<int> index1(i1_size);
     for (std::size_t i = 0; i < i1_size; ++i) {
-        index1[i] = mtmp.index1_data()[i];
+        index1[i] = m.index1_data()[i];
     }
-    const int i2_size = mtmp.index2_data().size();
+    const int i2_size = m.index2_data().size();
     std::vector<int> index2(i2_size);
     for (std::size_t i = 0; i < i2_size; ++i) {
-        index2[i] = mtmp.index2_data()[i];
+        index2[i] = m.index2_data()[i];
     }
     const int x_size = x.size();
     std::vector<double> xtmp(x_size);
@@ -119,6 +118,15 @@ mult(M const& m,
 #else
     boost::numeric::ublas::axpy_prod(m, x, y, true);
 #endif
+}
+
+template <typename M, typename T>
+inline
+void
+mult(M const& m,
+     boost::numeric::ublas::vector<T> const& x,
+     boost::numeric::ublas::vector<T>& y) {
+    boost::numeric::ublas::axpy_prod(m, x, y, true);
 }
 
 } // end namespace ietl

@@ -30,6 +30,8 @@
 #include <alps/parameter.h>
 #include <alps/alea.h>
 
+#include <alps/config.h>
+
 #include <ietl/vectorspace.h>
 #include <ietl/lanczos.h>
 
@@ -106,8 +108,13 @@ sparsediag_worker::run(alps::ObservableSet& obs)
         typedef ietl::vectorspace<vector_type> vectorspace_type;
         boost::mt19937 generator;
         vectorspace_type vec(dim);
+#ifdef ALPS_HAVE_MKL
+        typedef typename boost::numeric::ublas::compressed_matrix<double, boost::numeric::ublas::row_major> matrix2_type;
+        matrix2_type Hamiltonian2 = Hamiltonian;
+        ietl::lanczos<matrix2_type, vectorspace_type> lanczos(Hamiltonian2, vec);
+#else
         ietl::lanczos<matrix_type, vectorspace_type> lanczos(Hamiltonian, vec);
-
+#endif
         int max_iter = std::min(static_cast<int>(10 * dim), 1000);
         if (params.defined("MAX_ITERATIONS")) {
             max_iter = params["MAX_ITERATIONS"];
