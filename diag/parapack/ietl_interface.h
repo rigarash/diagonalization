@@ -27,9 +27,43 @@
 #define ALPS_DIAG_PARAPACK_IETL_INTERFACE_H_
 
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/matrix_sparse.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/operation.hpp>
 #include <ietl/traits.h>
+
+#ifdef _OPENMP
+# include <omp.h>
+#endif
+
+namespace boost { namespace numeric { namespace ublas {
+
+template <class V, class E1, class E2>
+BOOST_UBLAS_INLINE
+V &
+axpy_prod(mapped_vector_of_mapped_vector<E1, row_major> const& e1,
+          vector_expression<E2> const& e2,
+          V& v, bool init = true)
+{
+    std::size_t row = e1.size1();
+    std::size_t col = e1.size2();
+    if (init) {
+        v.clear();
+        v.resize(row);
+    }
+    #ifdef _OPENMP
+    #pragma omp parallel for 
+    #endif
+    for (std::size_t i = 0; i < row; ++i) {
+        for (std::size_t j = 0; j < col; ++j) {
+            v[i] += e1(i, j) * e2()(j);
+        }
+    }
+    return v;
+}
+
+}}}
 
 namespace ietl {
 
