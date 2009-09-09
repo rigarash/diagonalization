@@ -26,44 +26,18 @@
 #ifndef ALPS_DIAG_PARAPACK_IETL_INTERFACE_H_
 #define ALPS_DIAG_PARAPACK_IETL_INTERFACE_H_
 
+#include <alps/config.h>
+
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/operation.hpp>
 #include <ietl/traits.h>
 
-#ifdef _OPENMP
-# include <omp.h>
+#ifdef ALPS_HAVE_MKL
+# include <mkl_spblas.h>
+# include <vector>
 #endif
-
-namespace boost { namespace numeric { namespace ublas {
-
-template <class V, class E1, class E2>
-BOOST_UBLAS_INLINE
-V &
-axpy_prod(mapped_vector_of_mapped_vector<E1, row_major> const& e1,
-          vector_expression<E2> const& e2,
-          V& v, bool init = true)
-{
-    std::size_t row = e1.size1();
-    std::size_t col = e1.size2();
-    if (init) {
-        v.clear();
-        v.resize(row);
-    }
-    #ifdef _OPENMP
-    #pragma omp parallel for 
-    #endif
-    for (std::size_t i = 0; i < row; ++i) {
-        for (std::size_t j = 0; j < col; ++j) {
-            v[i] += e1(i, j) * e2()(j);
-        }
-    }
-    return v;
-}
-
-}}}
 
 namespace ietl {
 
@@ -109,7 +83,42 @@ void
 mult(M const& m,
      boost::numeric::ublas::vector<T> const& x,
      boost::numeric::ublas::vector<T>& y) {
+#ifdef ALPS_HAVE_MKL
+    typename boost::numeric::ublas::compressed_matrix<typename M::value_type, boost::numeric::ublas::row_major> mtmp = m;
+    char uplo = 'N';
+    int rowsize = mtmp.size1();
+    const int v_size = mtmp.value_data().size();
+    std::vector<double> value(v_size);
+    for (std::size_t i = 0; i < v_size; ++i) {
+        value[i] = mtmp.value_data()[i];
+    }
+    const int i1_size = mtmp.index1_data().size();
+    std::vector<int> index1(i1_size);
+    for (std::size_t i = 0; i < i1_size; ++i) {
+        index1[i] = mtmp.index1_data()[i];
+    }
+    const int i2_size = mtmp.index2_data().size();
+    std::vector<int> index2(i2_size);
+    for (std::size_t i = 0; i < i2_size; ++i) {
+        index2[i] = mtmp.index2_data()[i];
+    }
+    const int x_size = x.size();
+    std::vector<double> xtmp(x_size);
+    for (std::size_t i = 0; i < x_size; ++i) {
+        xtmp[i] = x(i);
+    }
+    const int y_size = y.size();
+    std::vector<double> ytmp(y_size);
+    for (std::size_t i = 0; i < y_size; ++i) {
+        ytmp[i] = y(i);
+    }
+    mkl_cspblas_dcsrgemv(&uplo, &rowsize, &value[0], &index1[0], &index2[0], &xtmp[0], &ytmp[0]);
+    for (std::size_t i = 0; i < y_size; ++i) {
+        y(i) = ytmp[i];
+    }
+#else
     boost::numeric::ublas::axpy_prod(m, x, y, true);
+#endif
 }
 
 } // end namespace ietl
