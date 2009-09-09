@@ -1,5 +1,7 @@
 LATTICE = "chain lattice"
+WORKER = "Sparse diagonalization"
 MODEL   = "spin"
 J = 1
-L = 16
-{ WORKER = "Sparse diagonalization" }
+{ L = 16 }
+{ L = 18 }
+
