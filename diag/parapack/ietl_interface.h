@@ -89,41 +89,31 @@ mult(boost::numeric::ublas::compressed_matrix<T> const& m,
 #ifdef ALPS_HAVE_MKL
     char uplo = 'N';
     int rowsize = m.size1();
-    std::vector<double> value;
-    std::vector<int> index1;
-    std::vector<int> index2;
-    std::vector<double> xtmp;
-    std::vector<double> ytmp;
+    std::vector<double> value(m.value_data().size());
+    std::vector<int> index1(m.index1_data().size());
+    std::vector<int> index2(m.index2_data().size());
+    std::vector<double> xtmp(x.size());
+    std::vector<double> ytmp(y.size());
 #pragma omp parallel
     {
-        const int v_size = m.value_data().size();
-        value.resize(v_size);
 #pragma omp for nowait
-        for (std::size_t i = 0; i < v_size; ++i) {
+        for (std::size_t i = 0; i < value.size(); ++i) {
             value[i] = m.value_data()[i];
         }
-        const int i1_size = m.index1_data().size();
-        index1.resize(i1_size);
 #pragma omp for nowait
-        for (std::size_t i = 0; i < i1_size; ++i) {
+        for (std::size_t i = 0; i < index1.size(); ++i) {
             index1[i] = m.index1_data()[i];
         }
-        const int i2_size = m.index2_data().size();
-        index2.resize(i2_size);
 #pragma omp for nowait
-        for (std::size_t i = 0; i < i2_size; ++i) {
+        for (std::size_t i = 0; i < index2.size(); ++i) {
             index2[i] = m.index2_data()[i];
         }
-        const int x_size = x.size();
-        xtmp.resize(x_size);
 #pragma omp for nowait
-        for (std::size_t i = 0; i < x_size; ++i) {
+        for (std::size_t i = 0; i < xtmp.size(); ++i) {
             xtmp[i] = x(i);
         }
-        const int y_size = y.size();
-        ytmp.resize(y_size);
 #pragma omp for nowait
-        for (std::size_t i = 0; i < y_size; ++i) {
+        for (std::size_t i = 0; i < ytmp.size(); ++i) {
             ytmp[i] = y(i);
         }
     } // omp parallel
