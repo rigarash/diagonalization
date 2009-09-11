@@ -47,8 +47,6 @@
 
 namespace {
 
-template class alps::diag::matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> >;
-
 template <typename T, typename R, typename A, typename V>
 void
 diagonalize(
@@ -173,6 +171,7 @@ fulldiag_worker::load(alps::IDump& dump)
 
 namespace {
 
+template class alps::diag::matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> >;
 PARAPACK_REGISTER_WORKER(alps::diag::fulldiag_worker, "Full diagonalization");
 
 } // end namespace
