@@ -55,24 +55,25 @@ add_to_matrix(
 
     alps::BasisDescriptor<I> const& basis(hd.basis());
 
-    int t = get(alps::site_type_t(),  graph, vd);
-    int s = get(alps::site_index_t(), graph, vd);
-    std::size_t dim = basis_set.size();
-    std::size_t ds  = basis_set.basis().get_site_basis(s).num_states();
+    int const t = get(alps::site_type_t(),  graph, vd);
+    int const s = get(alps::site_index_t(), graph, vd);
+    std::size_t const dim = basis_set.size();
+    std::size_t const ds  = basis_set.basis().get_site_basis(s).num_states();
 
-    boost::multi_array<value_type, 2>
+    boost::multi_array<value_type, 2> const
         site_matrix(
             alps::get_matrix(value_type(),
                              hd.site_term(t),
                              basis.site_basis(t),
                              params));
 
+#pragma omp parallel for
     for (std::size_t i = 0; i < dim; ++i) {
-        std::size_t is = basis_set[i][s];
+        std::size_t const is = basis_set[i][s];
+        typename basis_set_type::value_type target(basis_set[i]);
         for (std::size_t js = 0; js < ds; ++js) {
-            typename basis_set_type::value_type target(basis_set[i]);
             target[s] = js;
-            std::size_t j = basis_set.index(target);
+            std::size_t const j = basis_set.index(target);
             if (j < dim) {
                 matrix(i, j) += site_matrix[is][js];
             }
@@ -100,16 +101,16 @@ add_to_matrix(
     typename alps::graph_traits<G>::site_descriptor const& vd1 =
         alps::detail::target_wrap<G>(ed, graph);
 
-    int t   = get(alps::bond_type_t(), graph, ed);
-    int st0 = get(alps::site_type_t(), graph, vd0);
-    int st1 = get(alps::site_type_t(), graph, vd1);
-    int s0  = get(alps::site_index_t(), graph, vd0);
-    int s1  = get(alps::site_index_t(), graph, vd1);
-    std::size_t dim = basis_set.size();
-    std::size_t ds0 = basis_set.basis().get_site_basis(s0).num_states();
-    std::size_t ds1 = basis_set.basis().get_site_basis(s1).num_states();
+    int const t   = get(alps::bond_type_t(), graph, ed);
+    int const st0 = get(alps::site_type_t(), graph, vd0);
+    int const st1 = get(alps::site_type_t(), graph, vd1);
+    int const s0  = get(alps::site_index_t(), graph, vd0);
+    int const s1  = get(alps::site_index_t(), graph, vd1);
+    std::size_t const dim = basis_set.size();
+    std::size_t const ds0 = basis_set.basis().get_site_basis(s0).num_states();
+    std::size_t const ds1 = basis_set.basis().get_site_basis(s1).num_states();
 
-    boost::multi_array<value_type, 4>
+    boost::multi_array<value_type, 4> const
         bond_matrix(
             alps::get_matrix(value_type(),
                              hd.bond_term(t),
@@ -117,15 +118,16 @@ add_to_matrix(
                              basis.site_basis(st1),
                              params));
 
+#pragma omp parallel for
     for (std::size_t i = 0; i < dim; ++i) {
-        std::size_t is0 = basis_set[i][s0];
-        std::size_t is1 = basis_set[i][s1];
+        std::size_t const is0 = basis_set[i][s0];
+        std::size_t const is1 = basis_set[i][s1];
+        typename basis_set_type::value_type target(basis_set[i]);
         for (std::size_t js0 = 0; js0 < ds0; ++js0) {
             for (std::size_t js1 = 0; js1 < ds1; ++js1) {
-                typename basis_set_type::value_type target(basis_set[i]);
                 target[s0] = js0;
                 target[s1] = js1;
-                std::size_t j = basis_set.index(target);
+                std::size_t const j = basis_set.index(target);
                 if (j < dim) {
                     matrix(i, j) += bond_matrix[is0][is1][js0][js1];
                 }
