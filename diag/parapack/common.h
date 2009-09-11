@@ -38,6 +38,10 @@
 #include <cmath>
 #include <cstddef>
 
+#ifdef _OPENMP
+# include <omp.h>
+#endif
+
 namespace {
 
 template <typename M, typename I, typename G>
