@@ -23,6 +23,9 @@
 *
 *****************************************************************************/
 
+#ifndef ALPS_DIAG_PARAPACK_SPARSEDIAG_H_
+#define ALPS_DIAG_PARAPACK_SPARSEDIAG_H_
+
 #include <alps/lattice.h>
 #include <alps/model.h>
 #include <alps/parameter.h>
@@ -58,3 +61,5 @@ class sparsediag_worker
 
 } // end namespace diag
 } // end namespace alps
+
+#endif // ALPS_DIAG_PARAPACK_SPARSEDIAG_H_
