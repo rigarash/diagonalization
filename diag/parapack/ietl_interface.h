@@ -83,7 +83,7 @@ copy(boost::numeric::ublas::vector<T> const& x,
 template <typename T>
 inline
 void
-mult(boost::numeric::ublas::compressed_matrix<T> const& m,
+mult(boost::numeric::ublas::compressed_matrix<T, boost::numeric::ublas::row_major> const& m,
      boost::numeric::ublas::vector<T> const& x,
      boost::numeric::ublas::vector<T>& y) {
 #ifdef ALPS_HAVE_MKL
