@@ -117,7 +117,9 @@ mult(boost::numeric::ublas::compressed_matrix<T, boost::numeric::ublas::row_majo
             ytmp[i] = y(i);
         }
     } // omp parallel
+#pragma omp barrier
     mkl_cspblas_dcsrgemv(&uplo, &rowsize, &value[0], &index1[0], &index2[0], &xtmp[0], &ytmp[0]);
+#pragma omp barrier
 #pragma omp parallel for
     for (std::size_t i = 0; i < y.size(); ++i) {
         y(i) = ytmp[i];
