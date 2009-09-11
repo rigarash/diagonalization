@@ -27,36 +27,27 @@
 #ifndef ALPS_DIAG_PARAPACK_FULLDIAG_H_
 #define ALPS_DIAG_PARAPACK_FULLDIAG_H_
 
-#include <alps/lattice.h>
-#include <alps/model.h>
-#include <alps/parameter.h>
-#include <alps/parapack/serial.h>
-
-// forward declaration
-class alps::ObservableSet;
-class alps::ODump;
-class alps::IDump;
+#include "matrix_worker.h"
 
 namespace alps {
 namespace diag {
 
 class fulldiag_worker
-    : public alps::parapack::abstract_worker,
-      protected alps::graph_helper<>,
-      protected alps::model_helper<>
+    : public matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> >
 {
  public:
-    fulldiag_worker(alps::Parameters const& params);
-    void init_observables(alps::Parameters const& /* params */,
-                          alps::ObservableSet& /* obs */);
-    bool is_thermalized() const;
+    typedef matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> > super_type;
+
+    fulldiag_worker(alps::Parameters const& params)
+        : super_type(params),
+          done(false)
+    {}
     double progress() const;
     void run(alps::ObservableSet& /* obs */);
     void save(alps::ODump& /* odump */) const;
     void load(alps::IDump& /* idump */);
 
  private:
-    alps::Parameters params;
     bool done;
 };
 

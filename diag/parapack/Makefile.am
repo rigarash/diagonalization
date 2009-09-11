@@ -1,4 +1,4 @@
-dist_noinst_HEADERS = sparsediag.h fulldiag.h common.h ietl_interface.h
+dist_noinst_HEADERS = sparsediag.h fulldiag.h common.h ietl_interface.h matrix_worker.h
 
 SOURCES	= sparsediag.cc fulldiag.cc $(dist_noinst_HEADERS)
 

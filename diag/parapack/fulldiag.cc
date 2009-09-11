@@ -47,6 +47,8 @@
 
 namespace {
 
+template class alps::diag::matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> >;
+
 template <typename T, typename R, typename A, typename V>
 void
 diagonalize(
@@ -72,24 +74,6 @@ diagonalize(
 namespace alps{
 namespace diag{
 
-fulldiag_worker::fulldiag_worker(alps::Parameters const& ps)
-    : alps::parapack::abstract_worker(),
-      alps::graph_helper<>(ps),
-      alps::model_helper<>(*this, ps),
-      params(ps),
-      done(false)
-{}
-
-void
-fulldiag_worker::init_observables(alps::Parameters const& /* params */,
-                                  alps::ObservableSet& /* obs */)
-{}
-
-inline
-bool
-fulldiag_worker::is_thermalized() const
-{ return true; }
-
 inline
 double
 fulldiag_worker::progress() const
@@ -98,7 +82,6 @@ fulldiag_worker::progress() const
 void
 fulldiag_worker::run(alps::ObservableSet& obs)
 {
-    typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;
     typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
 
     typedef boost::numeric::ublas::vector<double> vector_type;
@@ -107,8 +90,8 @@ fulldiag_worker::run(alps::ObservableSet& obs)
     done = true;
 
     double beta = 1.0;
-    if (params.defined("T")) {
-        beta = 1.0 / alps::evaluate<double>("T", params);
+    if (params_.defined("T")) {
+        beta = 1.0 / alps::evaluate<double>("T", params_);
     }
 
     // measurements
@@ -118,49 +101,30 @@ fulldiag_worker::run(alps::ObservableSet& obs)
     m["Number of Sites"] = num_sites();
     m["Volume"] = volume();
 
-    // generate basis set
-    alps::basis_states<short>
-        basis_set(alps::basis_states_descriptor<short>(model().basis(), graph()));
-    std::size_t dim = basis_set.size();
-
-    // generate Hamiltonian matrix
-    matrix_type Hamiltonian(dim, dim);
-    Hamiltonian.clear();
-    BOOST_FOREACH(site_descriptor s, sites()) {
-        add_to_matrix(Hamiltonian, model(), basis_set, s, graph(), params);
-    }
-    BOOST_FOREACH(bond_descriptor b, bonds()) {
-        add_to_matrix(Hamiltonian, model(), basis_set, b, graph(), params);
-    }
-    diagonal_matrix_type diagonal_energy(dim);
-    for (std::size_t i = 0; i < dim; ++i) {
-        diagonal_energy(i) = Hamiltonian(i, i);
-    }
-
     // partition function coefficients
-    matrix_type matrix(dim, dim);
-    matrix.clear();
-    for (std::size_t i = 0; i < dim; ++i) {
-        matrix(i, i) = 1;
+    matrix_type part(dimension(), dimension());
+    part.clear();
+    for (std::size_t i = 0; i < dimension(); ++i) {
+        part(i, i) = 1;
     }
     double factor = 1.;
     for (std::size_t k = 0; k < 5; ++k) {
         if (k != 0) {
-            matrix = prod(Hamiltonian, matrix);
+            part = prod(matrix(), part);
             factor *= -k;
         }
         double trace = 0.;
-        for (std::size_t i = 0; i < dim; ++i) {
-            trace += matrix(i, i);
+        for (std::size_t i = 0; i < dimension(); ++i) {
+            trace += part(i, i);
         }
         m["Partition Function Coefficient #" + boost::lexical_cast<std::string>(k)]
             = trace / factor;
     }
 
     // diagonalize Hamiltonian matrix
-    vector_type evals(dim);
+    vector_type evals(dimension());
     std::cerr << "start diagonalization... " << std::flush;
-    diagonalize(Hamiltonian, evals);
+    diagonalize(matrix(), evals);
     std::cerr << "done\n";
 
     double E0 = evals(0);
