@@ -71,6 +71,7 @@ add_to_matrix(
                              basis.site_basis(t),
                              params));
 
+#pragma omp barrier
 #pragma omp parallel for
     for (std::size_t i = 0; i < dim; ++i) {
         std::size_t const is = basis_set[i][s];
@@ -83,6 +84,7 @@ add_to_matrix(
             }
         }
     }
+#pragma omp barrier
 }
 
 template <typename M, typename I, typename G>
@@ -122,6 +124,7 @@ add_to_matrix(
                              basis.site_basis(st1),
                              params));
 
+#pragma omp barrier
 #pragma omp parallel for
     for (std::size_t i = 0; i < dim; ++i) {
         std::size_t const is0 = basis_set[i][s0];
@@ -138,6 +141,7 @@ add_to_matrix(
             }
         }
     }
+#pragma omp barrier
 }
 
 template <class V>
