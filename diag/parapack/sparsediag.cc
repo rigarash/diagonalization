@@ -88,7 +88,7 @@ sparsediag_worker::run(alps::ObservableSet& obs)
     m["Volume"] = volume();
 
     // generate basis set
-    alps::basis_states<short>
+    alps::basis_states<short> const
         basis_set(alps::basis_states_descriptor<short>(model().basis(), graph()));
     std::size_t dim = basis_set.size();
 
