@@ -93,7 +93,10 @@ mult(boost::numeric::ublas::compressed_matrix<T, boost::numeric::ublas::row_majo
     std::vector<int> index1(m.index1_data().size());
     std::vector<int> index2(m.index2_data().size());
     std::vector<double> xtmp(x.size());
-    std::vector<double> ytmp(y.size());
+    std::vector<double> ytmp(m.size1());
+    y.resize(ytmp.size());
+    y.clear();
+#pragma omp barrier
 #pragma omp parallel
     {
 #pragma omp for nowait
@@ -112,10 +115,6 @@ mult(boost::numeric::ublas::compressed_matrix<T, boost::numeric::ublas::row_majo
         for (std::size_t i = 0; i < xtmp.size(); ++i) {
             xtmp[i] = x(i);
         }
-#pragma omp for nowait
-        for (std::size_t i = 0; i < ytmp.size(); ++i) {
-            ytmp[i] = y(i);
-        }
     } // omp parallel
 #pragma omp barrier
     mkl_cspblas_dcsrgemv(&uplo, &rowsize, &value[0], &index1[0], &index2[0], &xtmp[0], &ytmp[0]);
@@ -124,6 +123,7 @@ mult(boost::numeric::ublas::compressed_matrix<T, boost::numeric::ublas::row_majo
     for (std::size_t i = 0; i < y.size(); ++i) {
         y(i) = ytmp[i];
     }
+#pragma omp barrier
 #else
     boost::numeric::ublas::axpy_prod(m, x, y, true);
 #endif
