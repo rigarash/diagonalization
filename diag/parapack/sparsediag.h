@@ -26,36 +26,30 @@
 #ifndef ALPS_DIAG_PARAPACK_SPARSEDIAG_H_
 #define ALPS_DIAG_PARAPACK_SPARSEDIAG_H_
 
-#include <alps/lattice.h>
-#include <alps/model.h>
-#include <alps/parameter.h>
-#include <alps/parapack/serial.h>
+#include "matrix_worker.h"
 
-// forward declaration
-class alps::ObservableSet;
-class alps::ODump;
-class alps::IDump;
+#include <boost/numeric/ublas/matrix_sparse.hpp>
+#include <boost/numeric/ublas/vector.hpp>
 
 namespace alps {
 namespace diag {
 
 class sparsediag_worker
-    : public alps::parapack::abstract_worker,
-      protected alps::graph_helper<>,
-      protected alps::model_helper<>
+    : public matrix_worker<double, boost::numeric::ublas::mapped_vector_of_mapped_vector<double, boost::numeric::ublas::row_major> >
 {
  public:
-    sparsediag_worker(alps::Parameters const& params);
-    void init_observables(alps::Parameters const& /* params */,
-                          alps::ObservableSet& /* obs */);
-    bool is_thermalized() const;
+    typedef matrix_worker<double, boost::numeric::ublas::mapped_vector_of_mapped_vector<double, boost::numeric::ublas::row_major> > super_type;
+
+    sparsediag_worker(alps::Parameters const& params)
+        : super_type(params),
+          done(false)
+    {}
     double progress() const;
     void run(alps::ObservableSet& /* obs */);
     void save(alps::ODump& /* odump */) const;
     void load(alps::IDump& /* idump */);
 
  private:
-    alps::Parameters params;
     bool done;
 };
 
