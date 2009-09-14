@@ -23,112 +23,17 @@
 *
 *****************************************************************************/
 
-#include "common.h"
 #include "sparsediag.h"
-#include "ietl_interface.h"
-
-#include <alps/parameter.h>
-#include <alps/alea.h>
-
-#include <alps/config.h>
-
-#include <ietl/vectorspace.h>
-#include <ietl/lanczos.h>
-
-#include <boost/foreach.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/random.hpp>
-
-#include <complex>
-#include <cmath>
-#include <cstddef>
-
-namespace alps{
-namespace diag{
-
-inline
-double
-sparsediag_worker::progress() const
-{ return done ? 1 : 0; }
-
-void
-sparsediag_worker::run(alps::ObservableSet& obs)
-{
-    typedef typename boost::numeric::ublas::vector<double> vector_type;
-
-    if (done) { return; }
-    done = true;
-
-    // measurements
-    std::map<std::string, double> m;
-    m["Number of Sites"] = num_sites();
-    m["Volume"] = volume();
-
-    // Lanczos diagonalization of Hamiltonian matrix
-    vector_type evals;
-    {
-        typedef ietl::vectorspace<vector_type> vectorspace_type;
-        boost::mt19937 generator;
-        vectorspace_type vec(dimension());
-#ifdef ALPS_HAVE_MKL
-        typedef typename boost::numeric::ublas::compressed_matrix<double, boost::numeric::ublas::row_major> matrix2_type;
-        matrix2_type Hamiltonian2 = matrix();
-        ietl::lanczos<matrix2_type, vectorspace_type> lanczos(Hamiltonian2, vec);
-#else
-        ietl::lanczos<matrix_type, vectorspace_type> lanczos(matrix(), vec);
-#endif
-        int max_iter = std::min(static_cast<int>(10 * dimension()), 1000);
-        if (params_.defined("MAX_ITERATIONS")) {
-            max_iter = params_["MAX_ITERATIONS"];
-        }
-        std::size_t num_eigenvalues = 1;
-        if (params_.defined("NUMBER_EIGENVALUES")) {
-            num_eigenvalues = params_["NUMBER_EIGENVALUES"];
-        }
-        ietl::lanczos_iteration_nlowest<double> iter(max_iter, num_eigenvalues);
-        boost::timer t;
-        std::clog << "Starting Lanczos... " << std::flush;
-        lanczos.calculate_eigenvalues(iter, generator);
-        std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
-
-        int n = std::min(num_eigenvalues, lanczos.eigenvalues().size());
-        evals.resize(n);
-        for (std::size_t i = 0; i < n; ++i) {
-            evals[i] = lanczos.eigenvalues()[i];
-        }
-    }
-
-    double E0 = evals[0];
-
-    m["Ground State Energy"] = E0;
-    m["Ground State Energy Density" ] = E0 / volume();
-
-    // Store measurements
-    typedef std::pair<std::string, double> pair_type;
-    BOOST_FOREACH(pair_type const& p, m) {
-        obs << alps::SimpleRealObservable(p.first);
-    }
-    obs.reset(true);
-    BOOST_FOREACH(pair_type const& p, m) {
-        obs[p.first] << p.second;
-    }
-}
-
-void
-sparsediag_worker::save(alps::ODump& dump) const
-{ dump << done; }
-
-void
-sparsediag_worker::load(alps::IDump& dump)
-{ dump >> done; }
-
-} // end namespace diag
-} // end namespace alps
 
 namespace {
 
-template class alps::diag::matrix_worker<double, boost::numeric::ublas::mapped_vector_of_mapped_vector<double, boost::numeric::ublas::row_major> >;
-PARAPACK_REGISTER_WORKER(alps::diag::sparsediag_worker, "Sparse diagonalization");
+typedef double value_type;
+typedef typename boost::numeric::ublas::mapped_vector_of_mapped_vector<value_type, boost::numeric::ublas::row_major> matrix_type;
+typedef typename alps::diag::sparsediag_worker<value_type, matrix_type> sparsediag;
+
+template class alps::diag::matrix_worker<value_type, matrix_type>;
+template class alps::diag::sparsediag_worker<value_type, matrix_type>;
+
+PARAPACK_REGISTER_WORKER(sparsediag, "Sparse diagonalization");
 
 } // end namespace
