@@ -73,6 +73,7 @@ class sparsediag_worker
 
         // Lanczos diagonalization of Hamiltonian matrix
         vector_type evals;
+        std::vector<vector_type> eigenvectors;
         {
             typedef ietl::vectorspace<vector_type> vectorspace_type;
             boost::mt19937 generator;
@@ -97,6 +98,30 @@ class sparsediag_worker
             for (std::size_t i = 0; i < n; ++i) {
                 evals[i] = lanczos.eigenvalues()[i];
             }
+            // store eigenvector of the ground state
+            ietl::Info<> info;
+            lanczos.eigenvectors(lanczos.eigenvalues().begin(),
+                                 ++lanczos.eigenvalues().begin(),
+                                 std::back_inserter(eigenvectors), info, generator);
+        }
+
+        // Lanczos diagonalization for spectral function calculation
+        {
+            typedef ietl::vectorspace<vector_type> vectorspace_type;
+            vectorspace_type vec(this->dimension());
+            ietl::lanczos<matrix_type, vectorspace_type> lanczos(this->matrix(), vec);
+            eigenvectors[0](3) = 3;
+            lanczos.set_start_vector(eigenvectors[0]);
+            int max_iter = std::min(static_cast<int>(this->dimension()), 10);
+            ietl::fixed_lanczos_iteration<double> iter(max_iter);
+            boost::timer t;
+            std::clog << "Starting 2nd Lanczos... " << std::flush;
+            lanczos.more_eigenvalues(iter);
+            std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
+            std::vector<double> a = lanczos.alphas();
+            std::vector<double> b = lanczos.betas();
+
+            std::cerr << b[0] << " " << b[1] << "\n";
         }
 
         double E0 = evals[0];

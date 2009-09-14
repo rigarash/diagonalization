@@ -94,6 +94,19 @@ template <class MATRIX, class VS>
     void eigenvectors(IN in_eigvals_start, IN in_eigvals_end , OUT eig_vectors, Info<magnitude_type>& inf, GEN gen, int maxiter=0);
 
     std::vector<magnitude_type> const& t_eigenvectors() { return Tvectors;}
+
+    // for dynamic response function calculation
+    void set_start_vector(vector_type const& vec) {
+        startvector = vec;
+        explicit_start_vector_ = true;
+    }
+    std::vector<magnitude_type> const& alphas() { return this->alpha; }
+    std::vector<magnitude_type> const& betas()  { return this->beta;  }
+
+ private:
+    std::pair<magnitude_type, magnitude_type> make_first_step();
+    bool explicit_start_vector_;
+
  private:
     template <class IN> void find_m1m2(IN in_eigvals_start, IN in_eigvals_end);
     // m1 m2 finder for eigen vector calculation.
@@ -118,6 +131,7 @@ template <class MATRIX, class VS>
 // implementation of member functions start:
 template <class MATRIX, class VS> //constructor:
 lanczos<MATRIX, VS>::lanczos(const MATRIX& matrix, const VS& vec):
+    explicit_start_vector_(false),
     matrix_(matrix),
     vecspace_(vec),
     startvector(new_vector(vec)),
@@ -349,6 +363,11 @@ template <class MATRIX, class VS> template <class IT>
 void lanczos<MATRIX, VS>::generate_tmatrix(IT& iter) {
     vector_type vec3 = new_vector(vecspace_);
     std::pair<magnitude_type,magnitude_type> a_and_b;
+    if (super_type::alpha.size() == 0 && explicit_start_vector_) {
+        a_and_b = make_first_step();
+        push_back(a_and_b); // member of T-matrix class.
+        n=1;
+    }
     for(int j = 0; j < n; j++)
         ++iter;
     if(super_type::alpha.size() == 0)
@@ -366,6 +385,20 @@ void lanczos<MATRIX, VS>::generate_tmatrix(IT& iter) {
 
 //------------------------------------------------------
 // generation of one step of alpha, beta:
+template <class MATRIX, class VS>
+std::pair<typename lanczos<MATRIX, VS>::magnitude_type,typename lanczos<MATRIX, VS>::magnitude_type>
+lanczos<MATRIX, VS>::make_first_step() {
+    magnitude_type a, b;
+    ietl::project(startvector,vecspace_);
+    startvector/=ietl::two_norm(startvector); // normalization of startvector.
+    ietl::mult(matrix_,startvector,vec2);
+    a =  ietl::real(ietl::dot(startvector,vec2));
+    vec2-=a*startvector;
+    b =  ietl::two_norm(vec2);
+    vec2/=b;
+    return std::make_pair(a,b);
+}
+
 template <class MATRIX, class VS> template <class GEN>
 std::pair<typename lanczos<MATRIX, VS>::magnitude_type,typename lanczos<MATRIX, VS>::magnitude_type>
 lanczos<MATRIX, VS>::make_first_step(GEN gen) {
