@@ -50,8 +50,6 @@ class matrix_worker
  public:
     typedef T value_type;
     typedef M matrix_type;
-
- protected:
     typedef Mtmp matrix_build_type;
 
  public:
@@ -131,12 +129,11 @@ class matrix_worker
     template <typename T_, typename M_, typename Mtmp_>
     class build_matrix {
      public:
-        friend class matrix_worker<T_, M_, Mtmp_>;
         void operator() (matrix_worker<T_, M_, Mtmp_> const& p) const {
             typedef matrix_worker<T, M, M> P;
             boost::timer t;
             std::clog << "Building matrix..." << std::flush;
-            Mtmp mtmp = P::matrix_build_type(p.dimension(), p.dimension());
+            typename P::matrix_build_type mtmp = P::matrix_build_type(p.dimension(), p.dimension());
             mtmp.clear();
             BOOST_FOREACH(site_descriptor s, p.sites()) {
                 add_to_matrix(mtmp, p.model(), p.basis_states(), s, p.graph(), p.params_);
