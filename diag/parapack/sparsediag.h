@@ -57,7 +57,6 @@ class sparsediag_worker
 {
  public:
     typedef matrix_worker<T, M1> super_type;
-//    typedef matrix_worker<double, boost::numeric::ublas::mapped_vector_of_mapped_vector<double, boost::numeric::ublas::row_major> > super_type;
 
     sparsediag_worker(alps::Parameters const& params)
         : super_type(params)
