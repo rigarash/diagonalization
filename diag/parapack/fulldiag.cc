@@ -72,11 +72,6 @@ diagonalize(
 namespace alps{
 namespace diag{
 
-inline
-double
-fulldiag_worker::progress() const
-{ return done ? 1 : 0; }
-
 void
 fulldiag_worker::run(alps::ObservableSet& obs)
 {
@@ -84,8 +79,8 @@ fulldiag_worker::run(alps::ObservableSet& obs)
 
     typedef boost::numeric::ublas::vector<double> vector_type;
 
-    if (done) { return; }
-    done = true;
+    if (progress() >= 1.0) { return; }
+    this->is_diagonalized_ = true;
 
     double beta = 1.0;
     if (params_.defined("T")) {
@@ -158,20 +153,13 @@ fulldiag_worker::run(alps::ObservableSet& obs)
     }
 }
 
-void
-fulldiag_worker::save(alps::ODump& dump) const
-{ dump << done; }
-
-void
-fulldiag_worker::load(alps::IDump& dump)
-{ dump >> done; }
-
 } // end namespace diag
 } // end namespace alps
 
 namespace {
 
 template class alps::diag::matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> >;
+
 PARAPACK_REGISTER_WORKER(alps::diag::fulldiag_worker, "Full diagonalization");
 
 } // end namespace

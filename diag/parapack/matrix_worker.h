@@ -59,15 +59,24 @@ class matrix_worker
           alps::model_helper<>(*this, ps),
           params_(ps),
           built_basis_(false),
-          built_matrix_(false)
+          built_matrix_(false),
+          is_diagonalized_(false)
     {}
     void init_observables(alps::Parameters const& /* params */,
                           alps::ObservableSet& /* obs */) {}
     bool is_thermalized() const { return true; }
-    virtual double progress() const = 0;
+    double progress() const {
+        double res = 0.;
+        if (built_basis_)     { res += 0.25; }
+        if (built_matrix_)    { res += 0.25; }
+        if (is_diagonalized_) { res += 0.5;  }
+        return res;
+    }
     virtual void run(alps::ObservableSet& /* obs */) = 0;
-    virtual void save(alps::ODump& /* odump */) const = 0;
-    virtual void load(alps::IDump& /* idump */) = 0;
+    void save(alps::ODump& odump) const
+    { odump << is_diagonalized_; }
+    void load(alps::IDump& idump)
+    { idump >> is_diagonalized_; }
 
     std::size_t dimension() const {
         return basis_states().size();
@@ -131,6 +140,9 @@ class matrix_worker
  private:
     mutable bool built_basis_;
     mutable bool built_matrix_;
+
+ protected:
+    bool is_diagonalized_;
 };
 
 } // end namespace diag

@@ -39,16 +39,9 @@ class fulldiag_worker
     typedef matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> > super_type;
 
     fulldiag_worker(alps::Parameters const& params)
-        : super_type(params),
-          done(false)
+        : super_type(params)
     {}
-    double progress() const;
     void run(alps::ObservableSet& /* obs */);
-    void save(alps::ODump& /* odump */) const;
-    void load(alps::IDump& /* idump */);
-
- private:
-    bool done;
 };
 
 } // end namespace diag

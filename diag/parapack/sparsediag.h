@@ -60,19 +60,10 @@ class sparsediag_worker
 //    typedef matrix_worker<double, boost::numeric::ublas::mapped_vector_of_mapped_vector<double, boost::numeric::ublas::row_major> > super_type;
 
     sparsediag_worker(alps::Parameters const& params)
-        : super_type(params),
-          done(false)
+        : super_type(params)
     {}
-    double progress() const
-    { return done ? 1 : 0; }
     void run(alps::ObservableSet& /* obs */);
-    void save(alps::ODump& odump) const
-    { odump << done; }
-    void load(alps::IDump& idump)
-    { idump >> done; }
 
- private:
-    bool done;
 };
 
 template <typename T, typename M1>
@@ -81,8 +72,8 @@ sparsediag_worker<T, M1>::run(alps::ObservableSet& obs)
 {
     typedef typename boost::numeric::ublas::vector<double> vector_type;
 
-    if (done) { return; }
-    done = true;
+    if (this->progress() >= 1.0) { return; }
+    this->is_diagonalized_ = true;
 
     // measurements
     std::map<std::string, double> m;
