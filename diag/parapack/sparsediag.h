@@ -31,8 +31,6 @@
 #include <alps/parameter.h>
 #include <alps/alea.h>
 
-#include <alps/config.h>
-
 #include "ietl_interface.h"
 #include <ietl/vectorspace.h>
 #include <ietl/lanczos.h>
@@ -51,12 +49,13 @@
 namespace alps {
 namespace diag {
 
-template <typename T, typename M1>
+template <typename T, typename M1, typename M2 = M1>
 class sparsediag_worker
-    : public matrix_worker<T, M1>
+    : public matrix_worker<T, M1, M2>
 {
  public:
-    typedef matrix_worker<T, M1> super_type;
+    typedef matrix_worker<T, M1, M2> super_type;
+    typedef typename super_type::matrix_type matrix_type;
 
     sparsediag_worker(alps::Parameters const& params)
         : super_type(params)
@@ -78,13 +77,7 @@ class sparsediag_worker
             typedef ietl::vectorspace<vector_type> vectorspace_type;
             boost::mt19937 generator;
             vectorspace_type vec(this->dimension());
-#ifdef ALPS_HAVE_MKL
-            typedef typename boost::numeric::ublas::compressed_matrix<double, boost::numeric::ublas::row_major> matrix2_type;
-            matrix2_type Hamiltonian2 = this->matrix();
-            ietl::lanczos<matrix2_type, vectorspace_type> lanczos(Hamiltonian2, vec);
-#else
-            ietl::lanczos<matrix_type, vectorspace_type> lanczos(matrix(), vec);
-#endif
+            ietl::lanczos<matrix_type, vectorspace_type> lanczos(this->matrix(), vec);
             int max_iter = std::min(static_cast<int>(10 * this->dimension()), 1000);
             if (this->params_.defined("MAX_ITERATIONS")) {
                 max_iter = this->params_["MAX_ITERATIONS"];

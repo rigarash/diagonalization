@@ -41,7 +41,7 @@
 namespace alps {
 namespace diag {
 
-template <typename T, typename M>
+template <typename T, typename M, typename Mtmp = M>
 class matrix_worker
     : public alps::parapack::abstract_worker,
       protected alps::graph_helper<>,
@@ -50,6 +50,11 @@ class matrix_worker
  public:
     typedef T value_type;
     typedef M matrix_type;
+
+ protected:
+    typedef Mtmp matrix_build_type;
+
+ public:
     typedef alps::basis_states<short> basis_states_type;
     typedef basis_states_type::value_type state_type;
 
@@ -58,6 +63,7 @@ class matrix_worker
           alps::graph_helper<>(ps),
           alps::model_helper<>(*this, ps),
           params_(ps),
+          build_matrix_(),
           built_basis_(false),
           built_matrix_(false),
           is_diagonalized_(false)
@@ -96,13 +102,13 @@ class matrix_worker
     }
     matrix_type& matrix() {
         if (!built_matrix_) {
-            build_matrix();
+            build_matrix_(*this);
         }
         return matrix_;
     }
     matrix_type const& matrix() const {
         if (!built_matrix_) {
-            build_matrix();
+            build_matrix_(*this);
         }
         return matrix_;
     }
@@ -122,20 +128,51 @@ class matrix_worker
         built_basis_ = true;
     }
 
-    void build_matrix() const {
-        boost::timer t;
-        std::clog << "Building matrix..." << std::flush;
-        matrix_ = matrix_type(dimension(), dimension());
-        matrix_.clear();
-        BOOST_FOREACH(site_descriptor s, sites()) {
-            add_to_matrix(matrix_, model(), basis_states(), s, graph(), params_);
+    template <typename T_, typename M_, typename Mtmp_>
+    class build_matrix {
+     public:
+        friend class matrix_worker<T_, M_, Mtmp_>;
+        void operator() (matrix_worker<T_, M_, Mtmp_> const& p) const {
+            typedef matrix_worker<T, M, M> P;
+            boost::timer t;
+            std::clog << "Building matrix..." << std::flush;
+            Mtmp mtmp = P::matrix_build_type(p.dimension(), p.dimension());
+            mtmp.clear();
+            BOOST_FOREACH(site_descriptor s, p.sites()) {
+                add_to_matrix(mtmp, p.model(), p.basis_states(), s, p.graph(), p.params_);
+            }
+            BOOST_FOREACH(bond_descriptor b, p.bonds()) {
+                add_to_matrix(mtmp, p.model(), p.basis_states(), b, p.graph(), p.params_);
+            }
+            std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
+            t.restart();
+            std::clog << "Copying matrix... " << std::flush;
+            p.matrix_ = mtmp;
+            std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
+            p.built_matrix_ = true;
+
         }
-        BOOST_FOREACH(bond_descriptor b, bonds()) {
-            add_to_matrix(matrix_, model(), basis_states(), b, graph(), params_);
+    };
+    template <typename T_, typename M_>
+    class build_matrix<T_, M_, M_> {
+     public:
+        void operator() (matrix_worker<T_, M_, M_> const& p) const {
+            typedef matrix_worker<T, M, M> P;
+            boost::timer t;
+            std::clog << "Building matrix..." << std::flush;
+            p.matrix_ = matrix_type(p.dimension(), p.dimension());
+            p.matrix_.clear();
+            BOOST_FOREACH(site_descriptor s, p.sites()) {
+                add_to_matrix(p.matrix_, p.model(), p.basis_states(), s, p.graph(), p.params_);
+            }
+            BOOST_FOREACH(bond_descriptor b, p.bonds()) {
+                add_to_matrix(p.matrix_, p.model(), p.basis_states(), b, p.graph(), p.params_);
+            }
+            std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
+            p.built_matrix_ = true;
         }
-        std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
-        built_matrix_ = true;
-    }
+    };
+    build_matrix<T, M, Mtmp> const build_matrix_;
 
  private:
     mutable bool built_basis_;
