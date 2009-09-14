@@ -33,7 +33,7 @@
 
 #include "ietl_interface.h"
 #include <ietl/vectorspace.h>
-#include <ietl/lanczos.h>
+#include "lanczos.h"
 
 #include <boost/foreach.hpp>
 #include <boost/static_assert.hpp>
