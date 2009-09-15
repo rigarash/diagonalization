@@ -62,11 +62,9 @@ class sparsediag_worker
         : super_type(params),
           eigenvectors()
     {}
-    void run(alps::ObservableSet& obs) {
-
-        if (this->progress() >= 1.0) { return; }
-        this->is_diagonalized_ = true;
-
+    void run_subspace(alps::ObservableSet& obs) {
+        if (this->dimension() == 0)
+        { return; }
         // measurements
         std::map<std::string, double> m;
         m["Number of Sites"] = this->num_sites();

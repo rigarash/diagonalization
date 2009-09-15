@@ -41,7 +41,7 @@ class fulldiag_worker
     fulldiag_worker(alps::Parameters const& params)
         : super_type(params)
     {}
-    void run(alps::ObservableSet& /* obs */);
+    void run_subspace(alps::ObservableSet& /* obs */);
 };
 
 } // end namespace diag

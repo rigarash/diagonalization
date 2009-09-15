@@ -73,7 +73,7 @@ namespace alps{
 namespace diag{
 
 void
-fulldiag_worker::run(alps::ObservableSet& obs)
+fulldiag_worker::run_subspace(alps::ObservableSet& obs)
 {
     typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
 

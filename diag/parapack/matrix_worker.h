@@ -37,6 +37,12 @@
 #include <alps/parapack/serial.h>
 
 #include <boost/timer.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
+#include <boost/tokenizer.hpp>
+
+#include <cmath>
+#include <cstddef>
 
 namespace alps {
 namespace diag {
@@ -53,6 +59,12 @@ class matrix_worker
     typedef Mtmp matrix_build_type;
     typedef typename boost::numeric::ublas::vector<double> vector_type;
 
+ private:
+    typedef std::pair<std::string, std::string> string_pair;
+    typedef std::pair<half_integer_type, half_integer_type> half_integer_pair;
+    typedef boost::tuple<half_integer_type, half_integer_type, half_integer_type> half_integer_tuple;
+    typedef std::vector<std::pair<string_pair, half_integer_tuple> > QNRangeType;
+
  public:
     typedef alps::basis_states<short> basis_states_type;
     typedef basis_states_type::value_type state_type;
@@ -62,7 +74,9 @@ class matrix_worker
           alps::graph_helper<>(ps),
           alps::model_helper<>(*this, ps),
           params_(ps),
+          quantumnumbervalues_(),
           build_matrix_(),
+          ranges_(),
           built_basis_(false),
           built_matrix_(false),
           is_diagonalized_(false)
@@ -73,7 +87,48 @@ class matrix_worker
     double progress() const {
         return (built_basis_ && built_matrix_ && is_diagonalized_) ? 1.0 : 0.0;
     }
-    virtual void run(alps::ObservableSet& /* obs */) = 0;
+    void run(alps::ObservableSet& obs) {
+        if (progress() >= 1.0) { return; }
+        is_diagonalized_ = true;
+
+        build_subspaces();
+        std::vector<half_integer_type> indices(ranges_.size());
+        states_ = basis_states_type(basis_);
+        bool done;
+        do {
+            // set quantum number
+            std::vector<string_pair> qns;
+            for (std::size_t i = 0; i < indices.size(); ++i) {
+                params_[ranges_[i].first.second] =
+                    ranges_[i].second.get<0>() + indices[i];
+                qns.push_back(
+                    std::make_pair(
+                        ranges_[i].first.first,
+                        boost::lexical_cast<std::string>(
+                            ranges_[i].second.get<0>() + indices[i])));
+            }
+            invalidate();
+            basis().set_parameters(params_);
+            if (dimension()) {
+                quantumnumbervalues_.push_back(qns);
+                run_subspace(obs);
+            }
+
+            int j = 0;
+            while (j != indices.size()) {
+                indices[j] += ranges_[j].second.get<2>();
+                if (ranges_[j].second.get<0>() + indices[j] <=
+                    ranges_[j].second.get<1>()) {
+                    break;
+                }
+                indices[j] = 0;
+                ++j;
+            }
+            done = (indices.size() == 0 ? true : j == indices.size());
+        } while (!done);
+    }
+
+    virtual void run_subspace(alps::ObservableSet& /* obs */) = 0;
     void save(alps::ODump& odump) const
     { odump << is_diagonalized_; }
     void load(alps::IDump& idump)
@@ -110,9 +165,66 @@ class matrix_worker
 
  protected:
     alps::Parameters params_;
+    std::vector<std::vector<string_pair> > quantumnumbervalues_;
     mutable alps::basis_states_descriptor<short> basis_;
     mutable basis_states_type states_;
     mutable matrix_type matrix_;
+
+    void build_subspaces() {
+        // split the string into tokens for the quantum numbers
+        typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+        boost::char_separator<char> sep(" ,");
+        tokenizer tokens(params_["CONSERVED_QUANTUMNUMBERS"], sep);
+        std::vector<std::string> quantumnumber_names;
+        std::copy(tokens.begin(), tokens.end(), std::back_inserter(quantumnumber_names));
+
+        // check for unevaluated constraints
+        std::vector<string_pair> constraints;
+        for (basis_descriptor_type::unevaluated_constraints_type::const_iterator
+                 it = basis().unevaluated_constraints().begin();
+             it != basis().unevaluated_constraints().end();
+             ++it)
+        {
+            if (std::find(quantumnumber_names.begin(),
+                          quantumnumber_names.end(),
+                          it->first) !=
+                quantumnumber_names.end())
+            {
+                constraints.push_back(
+                    std::make_pair(
+                        it->first,
+                        boost::lexical_cast<std::string>(it->second)));
+            }
+        }
+
+        // get the range for each unevaluated quantum number
+        boost::timer t;
+        std::clog << "Building subspaces... " << std::flush;
+        basis_  = alps::basis_states_descriptor<short>(basis(), graph());
+        std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
+        for (std::size_t i = 0; i < constraints.size(); ++i) {
+            half_integer_tuple qn = boost::make_tuple(half_integer_type(0),
+                                                      half_integer_type(0),
+                                                      half_integer_type(1));
+            for (std::size_t s = 0; s < basis_.size(); ++s) {
+                std::size_t k =
+                    alps::get_quantumnumber_index(
+                        constraints[i].first,
+                        basis_[s].basis());
+                qn.get<0>() += basis_[s].basis()[k].global_min();
+                qn.get<1>() += basis_[s].basis()[k].global_max();
+                if (basis_[s].basis()[k].global_increment().is_odd()) {
+                    qn.get<2>() = 0.5;
+                }
+            }
+            ranges_.push_back(std::make_pair(constraints[i], qn));
+            std::clog << "Quantumnumber " << constraints[i].first
+                      << " going from "
+                      << qn.get<0>() << " to "
+                      << qn.get<1>() << " with increment "
+                      << qn.get<2>() << std::endl;
+        }
+    }
 
     void build_basis() const {
         boost::timer t;
@@ -169,6 +281,9 @@ class matrix_worker
     build_matrix<T, M, Mtmp> const build_matrix_;
 
  private:
+    void invalidate() { built_matrix_ = built_basis_ = false; }
+
+    QNRangeType ranges_;
     mutable bool built_basis_;
     mutable bool built_matrix_;
 
