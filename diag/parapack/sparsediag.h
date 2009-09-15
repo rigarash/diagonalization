@@ -72,6 +72,9 @@ class sparsediag_worker
 
         if (this->dimension() == 1) {
             eigenvalues.push_back(alps::real(value_type(this->matrix()(0, 0))));
+            vector_type vec(1);
+            vec(0) = 1;
+            eigenvectors.push_back(vec);
         } else {
         // Lanczos diagonalization of Hamiltonian matrix
 //        {
