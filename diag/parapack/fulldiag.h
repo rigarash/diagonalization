@@ -37,11 +37,17 @@ class fulldiag_worker
 {
  public:
     typedef matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> > super_type;
+    typedef super_type::vector_type vector_type;
 
     fulldiag_worker(alps::Parameters const& params)
-        : super_type(params)
+        : super_type(params),
+          eigenvalues()
     {}
+
     void run_subspace(alps::ObservableSet& /* obs */);
+    void run_measurement(alps::ObservableSet& /* obs */) const;
+
+    std::vector<double> eigenvalues;
 };
 
 } // end namespace diag

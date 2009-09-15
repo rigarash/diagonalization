@@ -128,9 +128,9 @@ class matrix_worker
             }
             done = (indices.size() == 0 ? true : j == indices.size());
         } while (!done);
+        run_measurement(obs);
     }
 
-    virtual void run_subspace(alps::ObservableSet& /* obs */) = 0;
     void save(alps::ODump& odump) const
     { odump << is_diagonalized_; }
     void load(alps::IDump& idump)
@@ -281,6 +281,9 @@ class matrix_worker
         }
     };
     build_matrix<T, M, Mtmp> const build_matrix_;
+
+    virtual void run_subspace(alps::ObservableSet& /* obs */) = 0;
+    virtual void run_measurement(alps::ObservableSet& /* obs */) const = 0;
 
  private:
     void invalidate() { built_matrix_ = built_basis_ = false; }

@@ -77,10 +77,49 @@ fulldiag_worker::run_subspace(alps::ObservableSet& obs)
 {
     typedef boost::numeric::ublas::vector<double> diagonal_matrix_type;
 
-    typedef boost::numeric::ublas::vector<double> vector_type;
-
     if (progress() >= 1.0) { return; }
     this->is_diagonalized_ = true;
+
+    // partition function coefficients
+    // matrix_type part(dimension(), dimension());
+    // part.clear();
+    // for (std::size_t i = 0; i < dimension(); ++i) {
+    //     part(i, i) = 1;
+    // }
+    // double factor = 1.;
+    // for (std::size_t k = 0; k < 5; ++k) {
+    //     if (k != 0) {
+    //         part = prod(matrix(), part);
+    //         factor *= -k;
+    //     }
+    //     double trace = 0.;
+    //     for (std::size_t i = 0; i < dimension(); ++i) {
+    //         trace += part(i, i);
+    //     }
+    //     m["Partition Function Coefficient #" + boost::lexical_cast<std::string>(k)]
+    //         = trace / factor;
+    // }
+
+    // diagonalize Hamiltonian matrix
+    vector_type evals(dimension());
+    std::cerr << "start diagonalization... " << std::flush;
+    diagonalize(matrix(), evals);
+    std::cerr << "done\n";
+
+    BOOST_FOREACH(double d, evals) {
+        eigenvalues.push_back(d);
+    }
+}
+
+void
+fulldiag_worker::run_measurement(alps::ObservableSet& obs) const {
+    // sort eigenvalues
+    std::vector<double> evv(eigenvalues);
+    std::sort(evv.begin(), evv.end());
+    vector_type evals(evv.size());
+    for (std::size_t i = 0; i < evv.size(); ++i) {
+        evals(i) = evv[i];
+    }
 
     double beta = 1.0;
     if (params_.defined("T")) {
@@ -94,35 +133,9 @@ fulldiag_worker::run_subspace(alps::ObservableSet& obs)
     m["Number of Sites"] = num_sites();
     m["Volume"] = volume();
 
-    // partition function coefficients
-    matrix_type part(dimension(), dimension());
-    part.clear();
-    for (std::size_t i = 0; i < dimension(); ++i) {
-        part(i, i) = 1;
-    }
-    double factor = 1.;
-    for (std::size_t k = 0; k < 5; ++k) {
-        if (k != 0) {
-            part = prod(matrix(), part);
-            factor *= -k;
-        }
-        double trace = 0.;
-        for (std::size_t i = 0; i < dimension(); ++i) {
-            trace += part(i, i);
-        }
-        m["Partition Function Coefficient #" + boost::lexical_cast<std::string>(k)]
-            = trace / factor;
-    }
-
-    // diagonalize Hamiltonian matrix
-    vector_type evals(dimension());
-    std::cerr << "start diagonalization... " << std::flush;
-    diagonalize(matrix(), evals);
-    std::cerr << "done\n";
-
-    double E0 = evals(0);
     double Z  = 0.;
-    BOOST_REVERSE_FOREACH(double eval, evals) {
+    double E0 = *std::min_element(eigenvalues.begin(), eigenvalues.end());
+    BOOST_REVERSE_FOREACH(double eval, evv) {
         double weight = std::exp(-beta * (eval - E0));
         Z += weight;
     }

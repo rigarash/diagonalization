@@ -65,11 +65,6 @@ class sparsediag_worker
     void run_subspace(alps::ObservableSet& obs) {
         if (this->dimension() == 0)
         { return; }
-        // measurements
-        std::map<std::string, double> m;
-        m["Number of Sites"] = this->num_sites();
-        m["Volume"] = this->volume();
-
         if (this->dimension() == 1) {
             eigenvalues.push_back(alps::real(value_type(this->matrix()(0, 0))));
             vector_type vec(1);
@@ -97,9 +92,8 @@ class sparsediag_worker
             std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
 
             int n = std::min(num_eigenvalues, lanczos.eigenvalues().size());
-            eigenvalues.resize(n);
             for (std::size_t i = 0; i < n; ++i) {
-                eigenvalues[i] = lanczos.eigenvalues()[i];
+                eigenvalues.push_back(lanczos.eigenvalues()[i]);
             }
             // store eigenvector of the ground state
             ietl::Info<> info;
@@ -108,24 +102,32 @@ class sparsediag_worker
                                  std::back_inserter(eigenvectors), info, generator);
 //        }
 
-        // Lanczos diagonalization for spectral function calculation
-        {
-            typedef ietl::vectorspace<vector_type> vectorspace_type;
-            vectorspace_type vec(this->dimension());
-            ietl::lanczos<matrix_type, vectorspace_type> lanczos(this->matrix(), vec);
-            eigenvectors[0](3) = 3;
-            lanczos.set_start_vector(eigenvectors[0]);
-            int max_iter = std::min(static_cast<int>(this->dimension()), 10);
-            ietl::fixed_lanczos_iteration<double> iter(max_iter);
-            boost::timer t;
-            std::clog << "Starting 2nd Lanczos... " << std::flush;
-            lanczos.more_eigenvalues(iter);
-            std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
-            std::vector<double> a = lanczos.alphas();
-            std::vector<double> b = lanczos.betas();
-            std::cerr << b[0] << " " << b[1] << "\n";
+        // // Lanczos diagonalization for spectral function calculation
+        // {
+        //     typedef ietl::vectorspace<vector_type> vectorspace_type;
+        //     vectorspace_type vec(this->dimension());
+        //     ietl::lanczos<matrix_type, vectorspace_type> lanczos(this->matrix(), vec);
+        //     eigenvectors[0](0) = 3;
+        //     lanczos.set_start_vector(eigenvectors[0]);
+        //     int max_iter = std::min(static_cast<int>(this->dimension()), 10);
+        //     ietl::fixed_lanczos_iteration<double> iter(max_iter);
+        //     boost::timer t;
+        //     std::clog << "Starting 2nd Lanczos... " << std::flush;
+        //     lanczos.more_eigenvalues(iter);
+        //     std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
+        //     std::vector<double> a = lanczos.alphas();
+        //     std::vector<double> b = lanczos.betas();
+        //     std::cerr << b[0] << " " << b[1] << "\n";
+        // }
         }
-        }
+
+    }
+
+    void run_measurement(alps::ObservableSet& obs) const {
+        // measurements
+        std::map<std::string, double> m;
+        m["Number of Sites"] = this->num_sites();
+        m["Volume"] = this->volume();
 
         double E0 = *std::min_element(eigenvalues.begin(), eigenvalues.end());
 
