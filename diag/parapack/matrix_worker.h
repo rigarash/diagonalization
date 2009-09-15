@@ -51,6 +51,7 @@ class matrix_worker
     typedef T value_type;
     typedef M matrix_type;
     typedef Mtmp matrix_build_type;
+    typedef typename boost::numeric::ublas::vector<double> vector_type;
 
  public:
     typedef alps::basis_states<short> basis_states_type;

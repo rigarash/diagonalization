@@ -56,12 +56,13 @@ class sparsediag_worker
  public:
     typedef matrix_worker<T, M1, M2> super_type;
     typedef typename super_type::matrix_type matrix_type;
+    typedef typename super_type::vector_type vector_type;
 
     sparsediag_worker(alps::Parameters const& params)
-        : super_type(params)
+        : super_type(params),
+          eigenvectors()
     {}
     void run(alps::ObservableSet& obs) {
-        typedef typename boost::numeric::ublas::vector<double> vector_type;
 
         if (this->progress() >= 1.0) { return; }
         this->is_diagonalized_ = true;
@@ -73,7 +74,6 @@ class sparsediag_worker
 
         // Lanczos diagonalization of Hamiltonian matrix
         vector_type evals;
-        std::vector<vector_type> eigenvectors;
         {
             typedef ietl::vectorspace<vector_type> vectorspace_type;
             boost::mt19937 generator;
@@ -120,7 +120,6 @@ class sparsediag_worker
             std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
             std::vector<double> a = lanczos.alphas();
             std::vector<double> b = lanczos.betas();
-
             std::cerr << b[0] << " " << b[1] << "\n";
         }
 
@@ -139,6 +138,9 @@ class sparsediag_worker
             obs[p.first] << p.second;
         }
     }
+
+ private:
+    std::vector<vector_type> eigenvectors;
 };
 
 
