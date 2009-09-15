@@ -70,8 +70,11 @@ class sparsediag_worker
         m["Number of Sites"] = this->num_sites();
         m["Volume"] = this->volume();
 
+        if (this->dimension() == 1) {
+            eigenvalues.push_back(alps::real(value_type(this->matrix()(0, 0))));
+        } else {
         // Lanczos diagonalization of Hamiltonian matrix
-        {
+//        {
             typedef ietl::vectorspace<vector_type> vectorspace_type;
             boost::mt19937 generator;
             vectorspace_type vec(this->dimension());
@@ -100,7 +103,7 @@ class sparsediag_worker
             lanczos.eigenvectors(lanczos.eigenvalues().begin(),
                                  ++lanczos.eigenvalues().begin(),
                                  std::back_inserter(eigenvectors), info, generator);
-        }
+//        }
 
         // Lanczos diagonalization for spectral function calculation
         {
@@ -119,8 +122,9 @@ class sparsediag_worker
             std::vector<double> b = lanczos.betas();
             std::cerr << b[0] << " " << b[1] << "\n";
         }
+        }
 
-        double E0 = eigenvalues[0];
+        double E0 = *std::min_element(eigenvalues.begin(), eigenvalues.end());
 
         m["Ground State Energy"] = E0;
         m["Ground State Energy Density" ] = E0 / this->volume();
