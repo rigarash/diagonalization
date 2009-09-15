@@ -70,11 +70,7 @@ class matrix_worker
                           alps::ObservableSet& /* obs */) {}
     bool is_thermalized() const { return true; }
     double progress() const {
-        double res = 0.;
-        if (built_basis_)     { res += 0.25; }
-        if (built_matrix_)    { res += 0.25; }
-        if (is_diagonalized_) { res += 0.5;  }
-        return res;
+        return (built_basis_ && built_matrix_ && is_diagonalized_) ? 1.0 : 0.0;
     }
     virtual void run(alps::ObservableSet& /* obs */) = 0;
     void save(alps::ODump& odump) const
