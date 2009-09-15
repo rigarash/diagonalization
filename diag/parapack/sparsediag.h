@@ -73,7 +73,6 @@ class sparsediag_worker
         m["Volume"] = this->volume();
 
         // Lanczos diagonalization of Hamiltonian matrix
-        vector_type evals;
         {
             typedef ietl::vectorspace<vector_type> vectorspace_type;
             boost::mt19937 generator;
@@ -94,9 +93,9 @@ class sparsediag_worker
             std::clog << "done. Elapsed time: " << t.elapsed() << std::endl;
 
             int n = std::min(num_eigenvalues, lanczos.eigenvalues().size());
-            evals.resize(n);
+            eigenvalues.resize(n);
             for (std::size_t i = 0; i < n; ++i) {
-                evals[i] = lanczos.eigenvalues()[i];
+                eigenvalues[i] = lanczos.eigenvalues()[i];
             }
             // store eigenvector of the ground state
             ietl::Info<> info;
@@ -123,7 +122,7 @@ class sparsediag_worker
             std::cerr << b[0] << " " << b[1] << "\n";
         }
 
-        double E0 = evals[0];
+        double E0 = eigenvalues[0];
 
         m["Ground State Energy"] = E0;
         m["Ground State Energy Density" ] = E0 / this->volume();
@@ -140,6 +139,7 @@ class sparsediag_worker
     }
 
  private:
+    std::vector<double> eigenvalues;
     std::vector<vector_type> eigenvectors;
 };
 
