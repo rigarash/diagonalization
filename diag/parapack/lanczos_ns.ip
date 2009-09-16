@@ -1,6 +1,7 @@
 LATTICE = "chain lattice"
 WORKER = "Sparse diagonalization"
 MODEL   = "spin"
+NUMBER_EIGENVALUES=2
 J = 1
 { L = 16; CONSERVED_QUANTUMNUMBERS = "Sz" }
 { L = 16 }
