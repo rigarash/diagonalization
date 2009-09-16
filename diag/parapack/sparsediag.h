@@ -132,6 +132,7 @@ class sparsediag_worker
         std::vector<double> es(eigenvalues);
         std::sort(es.begin(), es.end());
         double E0 = es[0];
+        double E1 = 0.;
         if (es.size() > 1) {
             double E1 = es[1];
         }
