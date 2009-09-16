@@ -129,10 +129,21 @@ class sparsediag_worker
         m["Number of Sites"] = this->num_sites();
         m["Volume"] = this->volume();
 
-        double E0 = *std::min_element(eigenvalues.begin(), eigenvalues.end());
+        std::vector<double> es(eigenvalues);
+        std::sort(es.begin(), es.end());
+        double E0 = es[0];
+        if (es.size() > 1) {
+            double E1 = es[1];
+        }
 
         m["Ground State Energy"] = E0;
         m["Ground State Energy Density" ] = E0 / this->volume();
+        if (es.size() > 1) {
+            m["1st Excited State Energy"] = E1;
+            m["1st Excited State Energy Density" ] = E1 / this->volume();
+            m["Energy Gap"] = E1 - E0;
+            m["Energy Gap" ] = (E1 - E0) / this->volume();
+        }
 
         // Store measurements
         typedef std::pair<std::string, double> pair_type;
