@@ -27,22 +27,22 @@
 
 #include <alps/config.h>
 
-namespace {
+//namespace {
 
 typedef double value_type;
-typedef typename boost::numeric::ublas::mapped_vector_of_mapped_vector<value_type, boost::numeric::ublas::row_major> matrix_type;
-typedef typename boost::numeric::ublas::compressed_matrix<value_type, boost::numeric::ublas::row_major> matrix_tmp_type;
+typedef boost::numeric::ublas::mapped_vector_of_mapped_vector<value_type, boost::numeric::ublas::row_major> matrix_type;
+typedef boost::numeric::ublas::compressed_matrix<value_type, boost::numeric::ublas::row_major> matrix_tmp_type;
 
 template class alps::diag::matrix_worker<value_type, matrix_type>;
 
 #ifdef ALPS_HAVE_MKL
-typedef typename alps::diag::sparsediag_worker<value_type, matrix_type, matrix_tmp_type> sparsediag;
+typedef alps::diag::sparsediag_worker<value_type, matrix_type, matrix_tmp_type> sparsediag;
 template class alps::diag::sparsediag_worker<value_type, matrix_type, matrix_tmp_type>;
 #else
-typedef typename alps::diag::sparsediag_worker<value_type, matrix_type> sparsediag;
+typedef alps::diag::sparsediag_worker<value_type, matrix_type> sparsediag;
 template class alps::diag::sparsediag_worker<value_type, matrix_type>;
 #endif
 
 PARAPACK_REGISTER_WORKER(sparsediag, "Sparse diagonalization");
 
-} // end namespace
+//} // end namespace

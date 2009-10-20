@@ -66,7 +66,8 @@ class sparsediag_worker
         if (this->dimension() == 0)
         { return; }
         if (this->dimension() == 1) {
-            eigenvalues.push_back(alps::real(value_type(this->matrix()(0, 0))));
+            typename matrix_type::value_type tmpval = this->matrix()(0, 0);
+            eigenvalues.push_back(alps::real(tmpval));
             vector_type vec(1);
             vec(0) = 1;
             eigenvectors.push_back(vec);
