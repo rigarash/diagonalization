@@ -60,6 +60,7 @@ class matrix_worker
     typedef M matrix_type;
     typedef Mtmp matrix_build_type;
     typedef typename boost::numeric::ublas::vector<double> vector_type;
+    typedef typename alps::graph_helper<>::vector_type graph_helper_vector_type;
 
  private:
     typedef std::pair<std::string, std::string> string_pair;
@@ -81,6 +82,7 @@ class matrix_worker
           ranges_(),
           built_basis_(false),
           built_matrix_(false),
+          use_bloch_(false),
           is_diagonalized_(false)
     {}
     void init_observables(alps::Parameters const& /* params */,
@@ -93,10 +95,19 @@ class matrix_worker
         if (progress() >= 1.0) { return; }
         is_diagonalized_ = true;
 
-        build_subspaces();
+        build_subspaces(params_["CONSERVED_QUANTUMNUMBERS"]);
         std::vector<half_integer_type> indices(ranges_.size());
+        std::vector<std::string> momenta;
+        if (params_.value_or_default("TRANSLATION_SYMMETRY", true)) {
+            std::vector<graph_helper_vector_type> k = translation_momenta();
+            BOOST_FOREACH(graph_helper_vector_type const& vec, k) {
+                momenta.push_back(alps::write_vector(vec));
+            }
+        }
         states_ = basis_states_type(basis_);
-        bool done;
+        int ik = 0;
+        bool loop_momenta = !params_.defined("TOTAL_MOMENTUM");
+        bool done = false;
         do {
             // set quantum number
             std::vector<string_pair> qns;
@@ -109,7 +120,25 @@ class matrix_worker
                         boost::lexical_cast<std::string>(
                             ranges_[i].second.get<0>() + indices[i])));
             }
+            if (loop_momenta && ik < momenta.size()) {
+                params_["TOTAL_MOMENTUM"] = momenta[ik];
+            }
             invalidate();
+            if (params_.defined("TOTAL_MOMENTUM")) {
+                if (loop_momenta) {
+                    qns.push_back(
+                        std::make_pair(
+                            std::string("TOTAL_MOMENTUM"), momenta[ik]));
+                }
+                std::vector<alps::Expression> k;
+                alps::read_vector_resize(params_["TOTAL_MOMENTUM"], k);
+                alps::ParameterEvaluator eval(params_);
+                total_momentum_.clear();
+                BOOST_FOREACH(alps::Expression const& kex, k) {
+                    total_momentum_.push_back(std::real(kex.value(eval)));
+                }
+            }
+            use_bloch_ = (alps::dimension(total_momentum_) != 0);
             basis().set_parameters(params_);
             if (dimension()) {
                 quantumnumbervalues_.push_back(qns);
@@ -117,14 +146,18 @@ class matrix_worker
             }
 
             int j = 0;
-            while (j != indices.size()) {
-                indices[j] += ranges_[j].second.get<2>();
-                if (ranges_[j].second.get<0>() + indices[j] <=
-                    ranges_[j].second.get<1>()) {
-                    break;
+            ++ik;
+            if (ik >= momenta.size() || (!loop_momenta)) {
+                ik = 0;
+                while (j != indices.size()) {
+                    indices[j] += ranges_[j].second.get<2>();
+                    if (ranges_[j].second.get<0>() + indices[j] <=
+                        ranges_[j].second.get<1>()) {
+                        break;
+                    }
+                    indices[j] = 0;
+                    ++j;
                 }
-                indices[j] = 0;
-                ++j;
             }
             done = (indices.size() == 0 ? true : j == indices.size());
         } while (!done);
@@ -171,8 +204,9 @@ class matrix_worker
     mutable alps::basis_states_descriptor<short> basis_;
     mutable basis_states_type states_;
     mutable matrix_type matrix_;
+    mutable graph_helper_vector_type total_momentum_;
 
-    void build_subspaces() {
+    void build_subspaces(std::string const& quantumnumbers) {
         // split the string into tokens for the quantum numbers
         typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
         boost::char_separator<char> sep(" ,");
@@ -291,6 +325,7 @@ class matrix_worker
     QNRangeType ranges_;
     mutable bool built_basis_;
     mutable bool built_matrix_;
+    mutable bool use_bloch_;
 
  protected:
     bool is_diagonalized_;
