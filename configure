@@ -15293,6 +15293,9 @@ if test -f "$srcdir/test/Makefile.in"; then
   if test -f "$srcdir/test/sparsediag/Makefile.in"; then
     exist_test_sparsediag=yes
   fi
+  if test -f "$srcdir/test/diag-parapack/Makefile.in"; then
+    exist_test_diag_parapack=yes
+  fi
   if test -f "$srcdir/test/checksign/Makefile.in"; then
     exist_test_checksign=yes
   fi
