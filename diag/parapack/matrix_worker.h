@@ -35,6 +35,7 @@
 #include <alps/parameter.h>
 #include <alps/osiris.h>
 #include <alps/alea.h>
+#include <alps/scheduler/measurement_operators.h>
 
 #include <alps/parapack/serial.h>
 
@@ -336,17 +337,151 @@ class matrix_evaluator
     : public alps::parapack::abstract_evaluator,
       protected alps::graph_helper<>,
       protected alps::model_helper<>
+      // protected alps::model_helper<>,
+      // protected alps::EigenvectorMeasurements<T>
 {
  public:
-    matrix_evaluator(alps::Parameters const& params) 
+    typedef T value_type;
+    typedef M matrix_type;
+    typedef Mtmp matrix_build_type;
+
+ private:
+   typedef std::pair<std::string, std::string> string_pair;
+
+ public:
+    matrix_evaluator(alps::Parameters const& params)
         : alps::parapack::abstract_evaluator(),
           alps::graph_helper<>(params),
           alps::model_helper<>(*this, params)
+          // alps::model_helper<>(*this, params),
+          // alps::EigenvectorMeasurements<T>(*this)
     {}
     void load(alps::ObservableSet const& /* obs_in */,
               alps::ObservableSet&       /* obs_out */) {}
 
-    void evaluate(ObservableSet& /* obs */) const {}
+    void evaluate(ObservableSet& /* obs */) const {
+        // if (this->calc_averages()) {
+        //     // global measurements
+        //     BOOST_FOREACH(string_pair const& ex, average_expressions) {
+        //         std::cerr << "Evaluating " << ex.first << "...\n";
+        //         average_values[ex.first] = calculate(ex.second);
+        //         std::cerr << "Done.\n";
+        //     }
+
+        //     // local measurements
+        //     if (!this->uses_translation_invariance()) {
+        //         BOOST_FOREACH(string_pair const& ex, local_expressions) {
+        //             std::cerr << "Evaluating " << ex.first << "...\n";
+        //             if (has_bond_operator(ex.second)) {
+        //                 BOOST_FOREACH(bond_descriptor const& b, bonds()) {
+        //                     std::vector<value_type> av = calculate(ex.second, b);
+        //                     local_values[ex.first].resize(av.size());
+        //                     for (std::size_t i = 0; i < av.size(); ++i) {
+        //                         local_values[ex.first][i].push_back(av[i]);
+        //                     }
+        //                 }
+        //             } else {
+        //                 BOOST_FOREACH(site_descriptor const& s, sites()) {
+        //                     std::vector<value_type> av = calculate(ex.second, s);
+        //                     local_values[ex.first].resize(av.size());
+        //                     for (std::size_t i = 0; i < av.size(); ++i) {
+        //                         local_values[ex.first][i].push_back(av[i]);
+        //                     }
+        //                 }
+        //             }
+        //             std::cerr << "Done.\n";
+        //         }
+        //     }
+
+        //     // correlations measurements
+        //     typedef std::pair<std::string, string_pair> string_string_pair_pair;
+        //     BOOST_FOREACH(string_string_pair_pair const& ex, correlation_expressions) {
+        //         std::cerr << "Evaluating " << ex.first << "...\n";
+        //         std::vector<bool> done(num_distances(), false);
+        //         BOOST_FOREACH(site_descriptor const& s1, sites()) {
+        //             BOOST_FOREACH(site_descriptor const& s2, sites()) {
+        //                 std::size_t d = distance(s1, s2);
+        //                 if (!done[d] || uses_translation_invariance()) {
+        //                     std::vector<value_type> av;
+        //                     if (s1 == s2) {
+        //                         alps::SiteOperator op(ex.second.first + "(i)*" +
+        //                                               ex.second.second + "(i)",
+        //                                               "i");
+        //                         substitute_operators(op, parms);
+        //                         av = calculate(op, s1);
+        //                     } else {
+        //                         alps::BondOperator op(ex.second.first + "(i)*" +
+        //                                               ex.second.second + "(j)",
+        //                                               "i", "j");
+        //                         substitute_operators(op, parms);
+        //                         av = calculate(op, std::make_pair(s1, s2));
+        //                     }
+        //                     correlation_values[ex.first].resize(av.size());
+        //                     for (std::size_t i = 0; i < av.size(); ++i) {
+        //                         if (correlation_values[ex.first][i].size() <= d) {
+        //                             correlation_values[ex.first][i].resize(d+1);
+        //                         }
+        //                         correlation_values[ex.first][i][d] +=
+        //                             (av[i] / static_cast<double>(uses_translation_invariance() ? multiplicities_[d] : 1.));
+        //                     }
+        //                     done[d] = true;
+        //                 }
+        //             }
+        //         }
+        //         std::cerr << "Evaluating " << ex.first << "...\n";
+        //     }
+
+        //     // structure factor measurements
+        //     BOOST_FOREACH(string_string_pair_pair const& ex, structurefactor_expressions) {
+        //         std::cerr << "Evaluating " << ex.first << "...\n";
+        //         boost::multi_array<std::vector<value_type>, 2>
+        //             corrs(boost::extents[num_sites()][num_sites()]);
+        //         BOOST_FOREACH(site_descriptor const& s1, sites()) {
+        //             BOOST_FOREACH(site_descriptor const& s2, sites()) {
+        //                 if (s1 == s2) {
+        //                     alps::SiteOperator op(ex.second.first + "(i)*" +
+        //                                           ex.second.second + "(i)",
+        //                                           "i");
+        //                     substitute_operators(op, parms);
+        //                     corrs[s1][s2] = calculate(op, s1);
+        //                 } else {
+        //                     alps::BondOperator op(ex.second.first + "(i)*" +
+        //                                           ex.second.second + "(j)",
+        //                                           "i", "j");
+        //                     substitute_operators(op, parms);
+        //                     corrs[s1][s2] = calculate(op, std::make_pair(s1, s2));
+        //                 }
+        //             }
+        //         }
+        //         std::cerr << "Evaluating " << ex.first << "...\n";
+        //     }
+
+        //     // Fourier-transformed measurements
+        //     for (momentum_iterator mit = momenta().first; mit != momenta().second; ++mit) {
+        //         std::vector<value_type> av;
+        //         BOOST_FOREACH(site_descriptor const& s1, sites()) {
+        //             BOOST_FOREACH(site_descriptor const& s2, sites()) {
+        //                 if (av.size() < corrs[s1][s2].size()) {
+        //                     av.resize(corrs[s1][s2].size());
+        //                 }
+        //                 for (std::size_t i = 0; i < corrs[s1][s2].size(); ++i) {
+        //                     av[i] +=
+        //                         std::real(corrs[s1][s2][i] *
+        //                                   std::conj(mit.phase(coordinate(s1))) *
+        //                                   mit.phase(coordinate(s2))) /
+        //                         static_cast<double>(num_sites());
+        //                 }
+        //             }
+        //         }
+        //         if (structurefactor_values[ex.first].size() < av.size()) {
+        //             structurefactor_values[ex.first].resize(av.size());
+        //         }
+        //         for (std::size_t i = 0; i < av.size(); ++i) {
+        //             structurefactor_values[ex.first][i].push_back(av[i]);
+        //         }
+        //     }
+        // }
+    }
 };
 
 } // end namespace diag
