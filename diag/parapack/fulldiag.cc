@@ -102,9 +102,9 @@ fulldiag_worker::run_subspace(alps::ObservableSet& obs)
 
     // diagonalize Hamiltonian matrix
     vector_type evals(dimension());
-    std::cerr << "start diagonalization... " << std::flush;
+    std::cerr << "Start Diagonalization...\n" << std::flush;
     diagonalize(matrix(), evals);
-    std::cerr << "done\n";
+    std::cerr << "Done Diagonalization.\n" << std::flush;
 
     BOOST_FOREACH(double d, evals) {
         eigenvalues.push_back(d);
