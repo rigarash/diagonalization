@@ -173,6 +173,9 @@ fulldiag_worker::run_measurement(alps::ObservableSet& obs) const {
 
 template class alps::diag::matrix_worker<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> >;
 
+typedef alps::diag::matrix_evaluator<double, boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> > fulldiag_evaluator;
+
 PARAPACK_REGISTER_WORKER(alps::diag::fulldiag_worker, "Full diagonalization");
+PARAPACK_REGISTER_EVALUATOR(fulldiag_evaluator, "Full diagonalization");
 
 //} // end namespace

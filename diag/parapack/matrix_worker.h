@@ -331,6 +331,24 @@ class matrix_worker
     bool is_diagonalized_;
 };
 
+template <typename T, typename M, typename Mtmp = M>
+class matrix_evaluator
+    : public alps::parapack::abstract_evaluator,
+      protected alps::graph_helper<>,
+      protected alps::model_helper<>
+{
+ public:
+    matrix_evaluator(alps::Parameters const& params) 
+        : alps::parapack::abstract_evaluator(),
+          alps::graph_helper<>(params),
+          alps::model_helper<>(*this, params)
+    {}
+    void load(alps::ObservableSet const& /* obs_in */,
+              alps::ObservableSet&       /* obs_out */) {}
+
+    void evaluate(ObservableSet& /* obs */) const {}
+};
+
 } // end namespace diag
 } // end namespace alps
 
