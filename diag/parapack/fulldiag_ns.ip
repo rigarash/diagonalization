@@ -7,13 +7,13 @@ T = 0.25
 
 LATTICE = "chain lattice"
 L = 4
-{ WORKER = "Full diagonalization" }
+{ ALGORITHM = "Full diagonalization" }
 
 LATTICE = "chain lattice"
 L = 4
 local_S = 1
 T = 1/L
-{ WORKER = "Full diagonalization" }
+{ ALGORITHM = "Full diagonalization" }
 
 LATTICE = "chain lattice"
 Jz = 1
@@ -22,7 +22,7 @@ local_S = 1/2
 Gamma = 0
 L = 4
 T = 0.5
-{ WORKER = "Full diagonalization" }
+{ ALGORITHM = "Full diagonalization" }
 
 LATTICE = "chain lattice"
 Jz = -1
@@ -31,4 +31,4 @@ local_S = 1
 D = -0.2
 L = 4
 T = 2
-{ WORKER = "Full diagonalization" }
+{ ALGORITHM = "Full diagonalization" }
