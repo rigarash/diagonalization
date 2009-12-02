@@ -27,18 +27,18 @@ check: check_fermion check_spin check_boson
 
 check_fermion: fermion
 	$(DESTDIR)$(bindir)/convert2xml fermion
-	../../diag/fulldiag/fulldiag fermion.in.xml
+	../../diag/parapack/diag-parapack fermion.in.xml
 	$(DESTDIR)$(bindir)/archivecat $(OUTXML_FERMION) > archive.xml
 	$(DESTDIR)$(bindir)/xslttransform archive.xml ../energy.xsl > result_fermion.txt
 
 check_boson: boson
 	$(DESTDIR)$(bindir)/convert2xml boson
-	../../diag/fulldiag/fulldiag boson.in.xml
+	../../diag/parapack/diag-parapack boson.in.xml
 	$(DESTDIR)$(bindir)/archivecat $(OUTXML_BOSON) > archive.xml
 	$(DESTDIR)$(bindir)/xslttransform archive.xml ../energy.xsl > result_boson.txt
 
 check_spin: parm
 	$(DESTDIR)$(bindir)/convert2xml parm
-	../../diag/fulldiag/fulldiag parm.in.xml
+	../../diag/parapack/diag-parapack parm.in.xml
 	$(DESTDIR)$(bindir)/archivecat $(OUTXML) > archive.xml
 	$(DESTDIR)$(bindir)/xslttransform archive.xml ../energy.xsl > result.txt
