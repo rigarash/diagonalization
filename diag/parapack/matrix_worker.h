@@ -158,7 +158,7 @@ class matrix_worker
                     ++j;
                 }
             }
-            done = (indices.size() == 0 ? true : j == indices.size());
+            done = (indices.size() == 0 ? ik == 0 : j == indices.size());
         } while (!done);
         is_diagonalized_ = true;
         run_measurement(obs);
