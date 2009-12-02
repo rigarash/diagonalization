@@ -93,7 +93,6 @@ class matrix_worker
     }
     void run(alps::ObservableSet& obs) {
         if (progress() >= 1.0) { return; }
-        is_diagonalized_ = true;
 
         build_subspaces(params_["CONSERVED_QUANTUMNUMBERS"]);
         std::vector<half_integer_type> indices(ranges_.size());
@@ -161,6 +160,7 @@ class matrix_worker
             }
             done = (indices.size() == 0 ? true : j == indices.size());
         } while (!done);
+        is_diagonalized_ = true;
         run_measurement(obs);
     }
 
