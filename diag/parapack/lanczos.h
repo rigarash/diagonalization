@@ -353,7 +353,7 @@ void lanczos<MATRIX, VS>::generate_tmatrix(IT& iter, GEN gen_) {
 
     if(super_type::alpha.size() == 0) {
         a_and_b = make_first_step(gen_);
-        push_back(a_and_b); // member of T-matrix class.
+        this->push_back(a_and_b); // member of T-matrix class.
         n=1;
     }
     generate_tmatrix(iter);
@@ -365,7 +365,7 @@ void lanczos<MATRIX, VS>::generate_tmatrix(IT& iter) {
     std::pair<magnitude_type,magnitude_type> a_and_b;
     if (super_type::alpha.size() == 0 && explicit_start_vector_) {
         a_and_b = make_first_step();
-        push_back(a_and_b); // member of T-matrix class.
+        this->push_back(a_and_b); // member of T-matrix class.
         n=1;
     }
     for(int j = 0; j < n; j++)
@@ -376,7 +376,7 @@ void lanczos<MATRIX, VS>::generate_tmatrix(IT& iter) {
     while(!iter.finished(*this)) {
         a_and_b = make_step(n,vec3);
         if (n==super_type::alpha.size())
-            push_back(a_and_b); // member of T-matrix class
+          this->push_back(a_and_b); // member of T-matrix class
         ++iter;
         ++n;
     }
