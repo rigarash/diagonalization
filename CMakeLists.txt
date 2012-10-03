@@ -10,6 +10,11 @@ include(${ALPS_USE_FILE})
 enable_language(CXX)
 
 # diag-parapack
-add_executable(diag-parapack diag/parapack/main.cc diag/parapack/fulldiag.cc diag/parapack/sparsediag.cc diag/parapack/diag_ns.cc)
+add_executable(diag-parapack diag/parapack/main.cc diag/parapack/fulldiag.cc diag/parapack/sparsediag.cc)
 target_link_libraries(diag-parapack ${ALPS_LIBRARIES})
 add_alps_test(diag-parapack)
+
+# diag-parapack-ns
+add_executable(diag-parapack-ns diag/parapack/diag_ns.cc diag/parapack/fulldiag.cc diag/parapack/sparsediag.cc)
+target_link_libraries(diag-parapack-ns ${ALPS_LIBRARIES})
+add_alps_test(diag-parapack-ns)
