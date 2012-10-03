@@ -36,11 +36,8 @@
 
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/bindings/lapack/syev.hpp>
-#include <boost/numeric/bindings/traits/traits.hpp>
-#include <boost/numeric/bindings/traits/matrix_traits.hpp>
-#include <boost/numeric/bindings/traits/ublas_vector.hpp>
-#include <boost/numeric/bindings/traits/ublas_matrix.hpp>
+#include <boost/numeric/bindings/ublas.hpp>
+#include <boost/numeric/bindings/lapack.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -58,9 +55,8 @@ diagonalize(
     BOOST_STATIC_ASSERT((boost::is_same<typename R::orientation_category, boost::numeric::ublas::column_major_tag>::value));
 
     const char jobz = (need_eigenvectors ? 'V' : 'N');
-    const char uplo = 'L';
 
-    int info = syev(jobz, uplo, a, v, optimal_workspace());
+    std::ptrdiff_t info = syev(jobz, a, v);
 
     if (info != 0) {
         throw std::runtime_error("failed in syev");
@@ -143,13 +139,13 @@ fulldiag_worker::run_measurement(alps::ObservableSet& obs) const {
     double ene, ene2;
     boost::tie(ene, ene2) = static_average2(beta, evals);
     ene  = ene  / Z;
-    ene2 = ene2 / Z / alps::abs2(volume());
+    ene2 = ene2 / Z / std::pow(std::abs(volume()), 2);
     double fene = E0 - std::log(Z) / beta;
     m["Ground State Energy"] = E0;
     m["Ground State Energy Densty" ] = E0 / volume();
     m["Energy"] = ene;
     m["Energy Density"] = ene / volume();
-    m["Specific Heat"] = alps::abs2(beta) * volume() * (ene2 - alps::abs2(ene / volume()));
+    m["Specific Heat"] = beta * beta * volume() * (ene2 - std::pow(std::abs(ene / volume()), 2));
     m["Free Energy"] = fene;
     m["Free Energy Density"] = fene / volume();
     m["Entropy"] = beta * (ene - fene);

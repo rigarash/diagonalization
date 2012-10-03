@@ -37,7 +37,7 @@
 #include <alps/alea.h>
 #include <alps/scheduler/measurement_operators.h>
 
-#include <alps/parapack/serial.h>
+#include <alps/parapack/worker.h>
 
 #include <boost/timer.hpp>
 #include <boost/tuple/tuple.hpp>

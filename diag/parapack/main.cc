@@ -35,7 +35,7 @@
     "  Copyright (c) 1997-2009 by Synge Todo <wistaria@comp-phys.org>,\n" \
     "                             Ryo IGARASHI <rigarash@hosi.phys.s.u-tokyo.ac.jp>\n" \
 
-#include <alps/parapack/scheduler.h>
+#include <alps/parapack/parapack.h>
 
 int
 main(int argc, char** argv) {

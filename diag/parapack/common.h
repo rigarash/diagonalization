@@ -155,7 +155,7 @@ static_average2(double beta, V const& evals)
     BOOST_REVERSE_FOREACH(typename vector_type::value_type const& eval, evals) {
         double weight = std::exp(-beta * (eval - offset));
         val  += eval * weight;
-        val2 += alps::abs2(eval) * weight;
+        val2 += std::pow(std::abs(eval), 2) * weight;
     }
     return std::make_pair(val, val2);
 }
