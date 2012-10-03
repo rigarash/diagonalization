@@ -68,7 +68,7 @@ class sparsediag_worker
         { return; }
         if (this->dimension() == 1) {
             typename matrix_type::value_type tmpval = this->matrix()(0, 0);
-            eigenvalues.push_back(alps::real(tmpval));
+            eigenvalues.push_back(std::abs(tmpval));
             vector_type vec(1);
             vec(0) = 1;
             eigenvectors.push_back(vec);
