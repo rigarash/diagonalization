@@ -64,7 +64,7 @@ add_to_matrix(
     std::size_t const dim = basis_set.size();
     std::size_t const ds  = basis_set.basis().get_site_basis(s).num_states();
 
-    boost::multi_array<value_type, 2> const
+    alps::multi_array<value_type, 2> const
         site_matrix(
             alps::get_matrix(value_type(),
                              hd.site_term(t),
@@ -116,7 +116,7 @@ add_to_matrix(
     std::size_t const ds0 = basis_set.basis().get_site_basis(s0).num_states();
     std::size_t const ds1 = basis_set.basis().get_site_basis(s1).num_states();
 
-    boost::multi_array<value_type, 4> const
+    alps::multi_array<value_type, 4> const
         bond_matrix(
             alps::get_matrix(value_type(),
                              hd.bond_term(t),

@@ -36,6 +36,7 @@
 
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/bindings/lower.hpp>
 #include <boost/numeric/bindings/ublas.hpp>
 #include <boost/numeric/bindings/lapack.hpp>
 
@@ -56,7 +57,7 @@ diagonalize(
 
     const char jobz = (need_eigenvectors ? 'V' : 'N');
 
-    std::ptrdiff_t info = syev(jobz, a, v);
+    std::ptrdiff_t info = syev(jobz, boost::numeric::bindings::lower(a), v);
 
     if (info != 0) {
         throw std::runtime_error("failed in syev");
