@@ -9,12 +9,15 @@ include(${ALPS_USE_FILE})
 # enable C and C++ compilers
 enable_language(CXX)
 
+# diagonalization convenience library
+add_library(diag fulldiag.cc sparsediag.cc)
+
 # diag-parapack
-add_executable(diag-parapack main.cc fulldiag.cc sparsediag.cc)
-target_link_libraries(diag-parapack ${ALPS_LIBRARIES})
+add_executable(diag-parapack main.cc)
+target_link_libraries(diag-parapack diag ${ALPS_LIBRARIES})
 add_alps_test(diag-parapack)
 
 # diag-parapack-ns
-add_executable(diag-parapack-ns diag_ns.cc fulldiag.cc sparsediag.cc)
-target_link_libraries(diag-parapack-ns ${ALPS_LIBRARIES})
+add_executable(diag-parapack-ns diag_ns.cc)
+target_link_libraries(diag-parapack-ns diag ${ALPS_LIBRARIES})
 add_alps_test(diag-parapack-ns)
