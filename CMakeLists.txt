@@ -15,9 +15,9 @@ add_library(diag fulldiag.cc sparsediag.cc)
 # diag-parapack
 add_executable(diag-parapack main.cc)
 target_link_libraries(diag-parapack diag ${ALPS_LIBRARIES})
-add_alps_test(diag-parapack)
+#add_alps_test(diag-parapack)
 
 # diag-parapack-ns
 add_executable(diag-parapack-ns diag_ns.cc)
 target_link_libraries(diag-parapack-ns diag ${ALPS_LIBRARIES})
-add_alps_test(diag-parapack-ns)
+#add_alps_test(diag-parapack-ns)
