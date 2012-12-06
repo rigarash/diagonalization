@@ -5,15 +5,6 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(diag-parapack NONE)
 
 ######################################################################
-# options
-######################################################################
-
-option(DIAG_USE_MKL_PARALLEL "Use parallelized routine of Intel MKL" ON)
-if(DIAG_USE_MKL_PARALLEL)
-  add_definitions(-DDIAG_USE_MKL_PARALLEL)
-endif(DIAG_USE_MKL_PARALLEL)
-
-######################################################################
 # find ALPS Library
 ######################################################################
 find_package(ALPS REQUIRED PATHS ${ALPS_ROOT_DIR} $ENV{ALPS_HOME} NO_SYSTEM_ENVIRONMENT_PATH)
