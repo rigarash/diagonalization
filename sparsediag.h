@@ -4,7 +4,7 @@
 *                     for quantum lattice models using parapack scheduler
 *
 * Copyright (C) 1994-2005 by Matthias Troyer <troyer@comp-phys.org>
-*               2009-2009 by Ryo IGARASHI <rigarash@hosi.phys.s.u-tokyo.ac.jp>
+*               2009-2009 by Ryo IGARASHI <rigarash@issp.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the

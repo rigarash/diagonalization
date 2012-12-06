@@ -6,7 +6,7 @@
 *
 * Copyright (C) 2001-2003 by Prakash Dayal <prakash@comp-phys.org>,
 *               2001-2003 by Matthias Troyer <troyer@comp-phys.org>,
-*               2009-2009 by Ryo IGARASHI <rigarash@hosi.phys.s.u-tokyo.ac.jp>
+*               2009-2009 by Ryo IGARASHI <rigarash@issp.u-tokyo.ac.jp>
 *
 * This software is part of the ALPS libraries, published under the ALPS
 * Library License; you can use, redistribute it and/or modify it under

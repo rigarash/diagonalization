@@ -3,7 +3,7 @@
 * ALPS/diag/parapack: Full and Sparse diagonalization
 *                     for quantum lattice models using parapack scheduler
 *
-* Copyright (C) 2009-2009 by Ryo IGARASHI <rigarash@hosi.phys.s.u-tokyo.ac.jp>
+* Copyright (C) 2009-2009 by Ryo IGARASHI <rigarash@issp.u-tokyo.ac.jp>
 *
 * This software is published under the ALPS Application License; you
 * can use, redistribute it and/or modify it under the terms of the
