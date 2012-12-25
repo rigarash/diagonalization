@@ -1,0 +1,9 @@
+[input parameters]
+ALGORITHM = "simple diagonalization";
+SEED = 0;
+L = 4;
+DIR_NAME = .;
+BASE_NAME = task1;
+WORKER_SEED = 0;
+DISORDER_SEED = 0;
+[results]

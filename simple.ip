@@ -1,0 +1,4 @@
+ALGORITHM = "simple diagonalization"
+// SEED must be set explicitly for tests.
+SEED = 0
+{ L = 4 }
