@@ -1,6 +1,7 @@
 [input parameters]
 ALGORITHM = "simple diagonalization";
 SEED = 0;
+LATTICE = "chain lattice";
 L = 4;
 DIR_NAME = .;
 BASE_NAME = task1;

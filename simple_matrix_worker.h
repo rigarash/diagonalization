@@ -26,17 +26,20 @@
 #ifndef ALPS_DIAG_PARAPACK_SIMPLE_MATRIX_WORKER_H_
 #define ALPS_DIAG_PARAPACK_SIMPLE_MATRIX_WORKER_H_
 
+#include <alps/lattice.h>
 #include <alps/parapack/worker_factory.h>
 
 namespace alps {
 namespace diag {
 
 class simple_matrix_worker
-    : public alps::parapack::abstract_worker
+    : public alps::parapack::abstract_worker,
+      protected alps::graph_helper<>
 {
  public:
     simple_matrix_worker(alps::Parameters const& ps)
-        : alps::parapack::abstract_worker()
+        : alps::parapack::abstract_worker(),
+          alps::graph_helper<>(ps)
     {}
     // TODO: implement
     void init_observables(alps::Parameters const& /* ps */,

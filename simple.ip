@@ -1,4 +1,5 @@
 ALGORITHM = "simple diagonalization"
 // SEED must be set explicitly for tests.
 SEED = 0
+LATTICE="chain lattice"
 { L = 4 }
