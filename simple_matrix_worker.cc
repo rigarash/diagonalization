@@ -37,5 +37,5 @@
 
 PARAPACK_SET_VERSION(SIMPLE_MATRIX_WORKER_VERSION);
 PARAPACK_SET_COPYRIGHT(SIMPLE_MATRIX_WORKER_COPYRIGHT);
-PARAPACK_REGISTER_WORKER(alps::diag::simple_matrix_worker, "simple diagonalization");
+PARAPACK_REGISTER_WORKER(alps::diag::simple_matrix_worker<>, "simple diagonalization");
 PARAPACK_REGISTER_EVALUATOR(alps::parapack::simple_evaluator, "simple diagonalization");

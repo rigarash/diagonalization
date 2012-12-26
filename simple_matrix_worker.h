@@ -32,14 +32,14 @@
 namespace alps {
 namespace diag {
 
+template <typename G = typename alps::graph_helper<>::graph_type>
 class simple_matrix_worker
-    : public alps::parapack::abstract_worker,
-      protected alps::graph_helper<>
+    : public alps::parapack::abstract_worker
 {
  public:
     simple_matrix_worker(alps::Parameters const& ps)
         : alps::parapack::abstract_worker(),
-          alps::graph_helper<>(ps)
+          graph_(ps)
     {}
     // TODO: implement
     void init_observables(alps::Parameters const& /* ps */,
@@ -58,6 +58,9 @@ class simple_matrix_worker
     }
     void save(alps::ODump& dp) const {
     }
+
+ private:
+    alps::graph_helper<G> graph_;
 };
 
 } // end namespace diag
