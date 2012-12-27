@@ -26,7 +26,7 @@
 #ifndef ALPS_DIAG_PARAPACK_SIMPLE_MATRIX_WORKER_H_
 #define ALPS_DIAG_PARAPACK_SIMPLE_MATRIX_WORKER_H_
 
-#include <alps/lattice.h>
+#include <alps/lattice/graph_helper.h>
 #include <alps/parapack/worker_factory.h>
 
 namespace alps {
