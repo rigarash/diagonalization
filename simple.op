@@ -2,6 +2,7 @@
 ALGORITHM = "simple diagonalization";
 SEED = 0;
 LATTICE = "chain lattice";
+MODEL = "fermion Hubbard";
 L = 4;
 DIR_NAME = .;
 BASE_NAME = task1;

@@ -2,4 +2,5 @@ ALGORITHM = "simple diagonalization"
 // SEED must be set explicitly for tests.
 SEED = 0
 LATTICE="chain lattice"
+MODEL="fermion Hubbard"
 { L = 4 }

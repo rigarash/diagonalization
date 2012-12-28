@@ -27,6 +27,7 @@
 #define ALPS_DIAG_PARAPACK_SIMPLE_MATRIX_WORKER_H_
 
 #include <alps/lattice/graph_helper.h>
+#include <alps/model/model_helper.h>
 #include <alps/parapack/worker_factory.h>
 
 namespace alps {
@@ -39,7 +40,8 @@ class simple_matrix_worker
  public:
     simple_matrix_worker(alps::Parameters const& ps)
         : alps::parapack::abstract_worker(),
-          graph_(ps)
+          graph_(ps),
+          model_(graph_, ps)
     {}
     // TODO: implement
     void init_observables(alps::Parameters const& /* ps */,
@@ -61,16 +63,10 @@ class simple_matrix_worker
 
  private:
     alps::graph_helper<G> graph_;
+    alps::model_helper<>  model_;
 };
 
 } // end namespace diag
 } // end namespace alps
 
 #endif // ALPS_DIAG_PARAPACK_SIMPLE_MATRIX_WORKER_H_
-
-
-
-
-
-
-
