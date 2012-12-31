@@ -25,9 +25,37 @@
 
 #include "simple_matrix_worker.h"
 
+#include <alps/parameter/parameters.h>
+#include <alps/alea/observableset.h>
+
 #define BOOST_TEST_MODULE test_simple_matrix_worker
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
-    BOOST_CHECK(true);
+    // prepare Parameters
+    alps::Parameters p;
+    p["LATTICE"] = "chain lattice";
+    p["MODEL"]   = "fermion Hubbard";
+    p["L"]       = 4;
+    // prepare Observables
+    alps::ObservableSet obs;
+
+    // start test
+    alps::diag::simple_matrix_worker<> worker(p);
+    worker.init_observables(p, obs);
+
+    // precondition check
+    // always thermalized
+    BOOST_CHECK(worker.is_thermalized());
+    // always finished
+    BOOST_CHECK_GE(worker.progress(), 1.0);
+
+    // check run
+    worker.run(obs);
+
+    // postcondition check
+    // always thermalized
+    BOOST_CHECK(worker.is_thermalized());
+    // finishied
+    BOOST_CHECK_GE(worker.progress(), 1.0);
 }
