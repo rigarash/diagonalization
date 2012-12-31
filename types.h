@@ -31,8 +31,8 @@ namespace diag {
 
 struct worker_status {
     enum worker_status_t {
-        Undefined,
-        Ready
+        Undefined, // between constructor and init_observables()
+        Ready      // between init_observables() and run()
     };
 };
 typedef worker_status::worker_status_t worker_status_t;
