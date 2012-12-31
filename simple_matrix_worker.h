@@ -26,9 +26,13 @@
 #ifndef ALPS_DIAG_PARAPACK_SIMPLE_MATRIX_WORKER_H_
 #define ALPS_DIAG_PARAPACK_SIMPLE_MATRIX_WORKER_H_
 
+#include "types.h"
+
 #include <alps/lattice/graph_helper.h>
 #include <alps/model/model_helper.h>
 #include <alps/parapack/worker_factory.h>
+
+#include <stdexcept>
 
 namespace alps {
 namespace diag {
@@ -38,23 +42,43 @@ class simple_matrix_worker
     : public alps::parapack::abstract_worker
 {
  public:
+    typedef alps::graph_helper<G> graph_helper_type;
+    typedef alps::model_helper<>  model_helper_type;
+
+ public:
     simple_matrix_worker(alps::Parameters const& ps)
         : alps::parapack::abstract_worker(),
           graph_(ps),
-          model_(graph_, ps)
+          model_(graph_, ps),
+          status_(worker_status::Undefined)
     {}
     // TODO: implement
     void init_observables(alps::Parameters const& /* ps */,
-                          alps::ObservableSet& /* obs */)
-    {}
+                          alps::ObservableSet& /* obs */) {
+        status_ = worker_status::Ready;
+    }
     // No need for thermalization for diagonalization
     bool is_thermalized() const { return true; }
     // TODO: implement
     double progress() const {
-        return 1.0;
+        switch(status_) {
+        case worker_status::Undefined:
+            return 0.0;
+            break;
+        case worker_status::Ready:
+            return 1.0;
+            break;
+        default:
+            throw std::invalid_argument("Invalid status code");
+        }
     }
     void run(alps::ObservableSet& obs) {
-        if (progress() >= 1.0) { return; }
+        switch(status_) {
+        case worker_status::Ready:
+            break;
+        default:
+            throw std::invalid_argument("Invalid status code");
+        }
     }
     void load(alps::IDump& dp) {
     }
@@ -62,8 +86,9 @@ class simple_matrix_worker
     }
 
  private:
-    alps::graph_helper<G> graph_;
-    alps::model_helper<>  model_;
+    graph_helper_type graph_;
+    model_helper_type model_;
+    worker_status_t status_;
 };
 
 } // end namespace diag
