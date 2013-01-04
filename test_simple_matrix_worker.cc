@@ -28,6 +28,8 @@
 #include <alps/parameter/parameters.h>
 #include <alps/alea/observableset.h>
 
+#include <boost/filesystem.hpp>
+
 #define BOOST_TEST_MODULE test_simple_matrix_worker
 #include <boost/test/unit_test.hpp>
 
@@ -39,6 +41,11 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
     p["L"]       = 4;
     // prepare Observables
     alps::ObservableSet obs;
+    obs.reset(true);
+    // prepare dumps
+    boost::filesystem::path dump(boost::filesystem::unique_path());
+    alps::OXDRFileDump odp(dump);
+    alps::IXDRFileDump idp(dump);
 
     // start test
     alps::diag::simple_matrix_worker<> worker(p);
@@ -58,4 +65,9 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
     BOOST_CHECK(worker.is_thermalized());
     // finishied
     BOOST_CHECK_GE(worker.progress(), 1.0);
+
+    // post execution cleanup
+    // remove temporary dump files
+    bool status = boost::filesystem::remove(dump);
+    BOOST_CHECK(status);
 }
