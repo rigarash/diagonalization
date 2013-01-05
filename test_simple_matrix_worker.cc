@@ -44,27 +44,38 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
     obs.reset(true);
     // prepare dumps
     boost::filesystem::path dump(boost::filesystem::unique_path());
-    alps::OXDRFileDump odp(dump);
-    alps::IXDRFileDump idp(dump);
 
     // start test
-    alps::diag::simple_matrix_worker<> worker(p);
-    worker.init_observables(p, obs);
+    alps::diag::simple_matrix_worker<> w1(p);
+    w1.init_observables(p, obs);
 
     // precondition check
     // always thermalized
-    BOOST_CHECK(worker.is_thermalized());
+    BOOST_CHECK(w1.is_thermalized());
     // always finished
-    BOOST_CHECK_GE(worker.progress(), 1.0);
+    BOOST_CHECK_GE(w1.progress(), 1.0);
 
     // check run
-    worker.run(obs);
+    w1.run(obs);
+
+    // check save
+    {
+        alps::OXDRFileDump odp(dump);
+        w1.save(odp);
+    }
+
+    // restart test
+    alps::diag::simple_matrix_worker<> w2(p);
+    {
+        alps::IXDRFileDump idp(dump);
+        w2.load(idp);
+    }
 
     // postcondition check
     // always thermalized
-    BOOST_CHECK(worker.is_thermalized());
+    BOOST_CHECK(w2.is_thermalized());
     // finishied
-    BOOST_CHECK_GE(worker.progress(), 1.0);
+    BOOST_CHECK_GE(w2.progress(), 1.0);
 
     // post execution cleanup
     // remove temporary dump files

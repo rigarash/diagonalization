@@ -81,8 +81,13 @@ class simple_matrix_worker
         }
     }
     void load(alps::IDump& dp) {
+        int status_tmp;
+        dp >> status_tmp;
+        status_ = static_cast<worker_status_t>(status_tmp);
     }
     void save(alps::ODump& dp) const {
+        int status_tmp = static_cast<int>(status_);
+        dp << status_tmp;
     }
 
  private:
