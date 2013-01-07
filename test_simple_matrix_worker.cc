@@ -33,12 +33,27 @@
 #define BOOST_TEST_MODULE test_simple_matrix_worker
 #include <boost/test/unit_test.hpp>
 
+struct F {
+    F()
+        : pp(),
+          wp()
+    {
+        // prepare Parameters
+        pp.reset(new alps::Parameters);
+        (*pp)["LATTICE"] = "chain lattice";
+        (*pp)["MODEL"]   = "fermion Hubbard";
+        (*pp)["L"]       = 4;
+
+        // prepare worker
+        wp.reset(new alps::diag::simple_matrix_worker<>(*pp));
+    }
+    ~F() {}
+
+    boost::scoped_ptr<alps::Parameters> pp;
+    boost::scoped_ptr<alps::diag::simple_matrix_worker<> > wp;
+};
+
 BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
-    // prepare Parameters
-    alps::Parameters p;
-    p["LATTICE"] = "chain lattice";
-    p["MODEL"]   = "fermion Hubbard";
-    p["L"]       = 4;
     // prepare Observables
     alps::ObservableSet obs;
     obs.reset(true);
@@ -47,34 +62,34 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
 
     // start test
     {
-        alps::diag::simple_matrix_worker<> w1(p);
-        w1.init_observables(p, obs);
+        F f;
+        f.wp->init_observables(*(f.pp), obs);
 
         // precondition check
         // always thermalized
-        BOOST_CHECK(w1.is_thermalized());
+        BOOST_CHECK(f.wp->is_thermalized());
         // always finished
-        BOOST_CHECK_GE(w1.progress(), 1.0);
+        BOOST_CHECK_GE(f.wp->progress(), 1.0);
 
         // check run
-        w1.run(obs);
+        f.wp->run(obs);
 
         // check save
         alps::OXDRFileDump odp(dump);
-        w1.save(odp);
+        f.wp->save(odp);
     }
 
     // restart test
     {
-        alps::diag::simple_matrix_worker<> w2(p);
+        F f;
         alps::IXDRFileDump idp(dump);
-        w2.load(idp);
+        f.wp->load(idp);
 
         // postcondition check
         // always thermalized
-        BOOST_CHECK(w2.is_thermalized());
+        BOOST_CHECK(f.wp->is_thermalized());
         // always finished
-        BOOST_CHECK_GE(w2.progress(), 1.0);
+        BOOST_CHECK_GE(f.wp->progress(), 1.0);
     }
 
     // post execution cleanup
