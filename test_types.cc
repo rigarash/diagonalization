@@ -33,6 +33,8 @@ using namespace alps::diag;
 BOOST_AUTO_TEST_CASE(types_h) {
     worker_status_t status(worker_status::Undefined);
     BOOST_CHECK_EQUAL(status, worker_status::Undefined);
+    BOOST_CHECK_EQUAL(worker_status::to_string(worker_status::Undefined), "undefined");
     status = worker_status::Ready;
     BOOST_CHECK_EQUAL(status, worker_status::Ready);
+    BOOST_CHECK_EQUAL(worker_status::to_string(worker_status::Ready), "ready");
 }

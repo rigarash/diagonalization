@@ -26,6 +26,9 @@
 #ifndef ALPS_DIAG_PARAPACK_TYPES_H_
 #define ALPS_DIAG_PARAPACK_TYPES_H_
 
+#include <string>
+#include <stdexcept>
+
 namespace alps {
 namespace diag {
 
@@ -34,6 +37,15 @@ struct worker_status {
         Undefined, // between constructor and init_observables()
         Ready      // between init_observables() and run()
     };
+    static std::string to_string(worker_status_t w) {
+        switch (w) {
+        case Undefined:
+            return "undefined";
+        case Ready:
+            return "ready";
+        }
+        throw std::invalid_argument("Invalid worker_status_t");
+    }
 };
 typedef worker_status::worker_status_t worker_status_t;
 
