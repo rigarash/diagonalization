@@ -63,7 +63,9 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
     // start test
     {
         F f;
+        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Undefined);
         f.wp->init_observables(*(f.pp), obs);
+        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
 
         // precondition check
         // always thermalized
@@ -72,18 +74,25 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
         BOOST_CHECK_GE(f.wp->progress(), 1.0);
 
         // check run
+        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
         f.wp->run(obs);
+        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
 
         // check save
+        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
         alps::OXDRFileDump odp(dump);
         f.wp->save(odp);
+        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
     }
 
     // restart test
     {
         F f;
+        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Undefined);
+        // check load
         alps::IXDRFileDump idp(dump);
         f.wp->load(idp);
+        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
 
         // postcondition check
         // always thermalized

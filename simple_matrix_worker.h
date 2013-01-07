@@ -90,6 +90,10 @@ class simple_matrix_worker
         dp << status_tmp;
     }
 
+    worker_status_t status() const {
+        return status_;
+    }
+
  private:
     graph_helper_type graph_;
     model_helper_type model_;
