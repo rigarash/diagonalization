@@ -31,7 +31,11 @@
 #include <boost/filesystem.hpp>
 
 #define BOOST_TEST_MODULE test_simple_matrix_worker
+#ifndef ALPS_HAS_BOOST_TEST
+#include <boost/test/included/unit_test.hpp>
+#else
 #include <boost/test/unit_test.hpp>
+#endif
 
 struct F {
     F()

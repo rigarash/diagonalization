@@ -49,16 +49,20 @@ if (NOT ALPS_HAS_BOOST_TEST)
 endif (NOT ALPS_HAS_BOOST_TEST)
 
 if (ALPS_HAS_BOOST_TEST OR Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
   add_definitions(-DBOOST_TEST_DYN_LINK)
-  # test types.h
-  add_executable(test_types test_types.cc)
-  target_link_libraries(test_types ${ALPS_LIBRARIES} ${Boost_LIBRARIES})
-  enable_testing()
-  add_test(test_types test_types)
-  # test simple_matrix_worker.h
-  add_executable(test_simple_matrix_worker test_simple_matrix_worker.cc)
-  target_link_libraries(test_simple_matrix_worker ${ALPS_LIBRARIES} ${Boost_LIBRARIES})
-  enable_testing()
-  add_test(test_simple_matrix_worker test_simple_matrix_worker)
+  # If this definition is not set,
+  # use header-only version of Boost.Test Unit Test Framework.
+  add_definitions(-DALPS_HAS_BOOST_TEST)
 endif (ALPS_HAS_BOOST_TEST OR Boost_FOUND)
+
+include_directories(${Boost_INCLUDE_DIRS})
+# test types.h
+add_executable(test_types test_types.cc)
+target_link_libraries(test_types ${ALPS_LIBRARIES} ${Boost_LIBRARIES})
+enable_testing()
+add_test(test_types test_types)
+# test simple_matrix_worker.h
+add_executable(test_simple_matrix_worker test_simple_matrix_worker.cc)
+target_link_libraries(test_simple_matrix_worker ${ALPS_LIBRARIES} ${Boost_LIBRARIES})
+enable_testing()
+add_test(test_simple_matrix_worker test_simple_matrix_worker)
