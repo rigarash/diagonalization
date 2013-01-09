@@ -54,8 +54,16 @@ struct F {
         // precondition check
         BOOST_CHECK_EQUAL(wp->status(), alps::diag::worker_status::Undefined);
         BOOST_CHECK_CLOSE(wp->progress(), 0.0, 1e-4);
+
+        // always thermalized
+        BOOST_CHECK(wp->is_thermalized());
     }
-    ~F() {}
+    ~F()
+    {
+        // postcondition check
+        // always thermalized
+        BOOST_CHECK(wp->is_thermalized());
+    }
 
     boost::scoped_ptr<alps::Parameters> pp;
     boost::scoped_ptr<alps::diag::simple_matrix_worker<> > wp;
@@ -76,12 +84,9 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
         BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
         BOOST_CHECK_CLOSE(f.wp->progress(), 0.1, 1e-4);
 
-        // precondition check
-        // always thermalized
-        BOOST_CHECK(f.wp->is_thermalized());
-
         // check run
         BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
+        BOOST_CHECK_CLOSE(f.wp->progress(), 0.1, 1e-4);
         f.wp->run(obs);
         BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Finished);
         BOOST_CHECK_GE(f.wp->progress(), 1.0);
@@ -105,8 +110,6 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
         BOOST_CHECK_GE(f.wp->progress(), 1.0);
 
         // postcondition check
-        // always thermalized
-        BOOST_CHECK(f.wp->is_thermalized());
         BOOST_CHECK_GE(f.wp->progress(), 1.0);
     }
 
