@@ -35,14 +35,17 @@ namespace diag {
 struct worker_status {
     enum worker_status_t {
         Undefined, // between constructor and init_observables()
-        Ready      // between init_observables() and run()
+        Ready,     // between init_observables() and run()
+        Finished   // All finished
     };
-    static std::string to_string(worker_status_t w) {
+    static double progress(worker_status_t w) {
         switch (w) {
         case Undefined:
-            return "undefined";
+            return 0.0;
         case Ready:
-            return "ready";
+            return 0.1;
+        case Finished:
+            return 1.0;
         }
         throw std::invalid_argument("Invalid worker_status_t");
     }
