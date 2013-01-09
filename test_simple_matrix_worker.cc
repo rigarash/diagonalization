@@ -46,6 +46,10 @@ struct F {
 
         // prepare worker
         wp.reset(new alps::diag::simple_matrix_worker<>(*pp));
+
+        // precondition check
+        BOOST_CHECK_EQUAL(wp->status(), alps::diag::worker_status::Undefined);
+        BOOST_CHECK_CLOSE(wp->progress(), 0.0, 1e-4);
     }
     ~F() {}
 
@@ -63,8 +67,7 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
     // start test
     {
         F f;
-        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Undefined);
-        BOOST_CHECK_CLOSE(f.wp->progress(), 0.0, 1e-4);
+        // check initialization
         f.wp->init_observables(*(f.pp), obs);
         BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Ready);
         BOOST_CHECK_CLOSE(f.wp->progress(), 0.1, 1e-4);
@@ -91,7 +94,6 @@ BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
     // restart test
     {
         F f;
-        BOOST_CHECK_EQUAL(f.wp->status(), alps::diag::worker_status::Undefined);
         // check load
         alps::IXDRFileDump idp(dump);
         f.wp->load(idp);
