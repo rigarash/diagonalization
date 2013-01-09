@@ -64,23 +64,14 @@ class simple_matrix_worker
     }
     // No need for thermalization for diagonalization
     bool is_thermalized() const { return true; }
-    // TODO: implement
     double progress() const {
-        switch(status_) {
-        case worker_status::Undefined:
-            return 0.0;
-            break;
-        case worker_status::Ready:
-            return 1.0;
-            break;
-        default:
-            throw std::invalid_argument("Invalid status code");
-        }
+        return worker_status::progress(status_);
     }
     void run(alps::ObservableSet& obs) {
         switch(status_) {
         case worker_status::Ready:
             build_basis_states();
+            status_ = worker_status::Finished;
             break;
         default:
             throw std::invalid_argument("Invalid status code");

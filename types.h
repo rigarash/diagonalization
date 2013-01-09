@@ -38,7 +38,7 @@ struct worker_status {
         Ready,     // between init_observables() and run()
         Finished   // All finished
     };
-    static double progress(worker_status_t w) {
+    static double progress(worker_status_t const& w) {
         switch (w) {
         case Undefined:
             return 0.0;
