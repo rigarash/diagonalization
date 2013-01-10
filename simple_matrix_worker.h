@@ -39,11 +39,12 @@
 namespace alps {
 namespace diag {
 
-template <typename G = typename alps::graph_helper<>::graph_type>
+template <typename M, typename G = typename alps::graph_helper<>::graph_type>
 class simple_matrix_worker
     : public alps::parapack::abstract_worker
 {
  public:
+    typedef M matrix_type;
     typedef alps::graph_helper<G> graph_helper_type;
     typedef alps::model_helper<>  model_helper_type;
 
@@ -55,6 +56,7 @@ class simple_matrix_worker
           graph_(ps),
           model_(graph_, ps),
           states_ptr(),
+          matrix_ptr(),
           status_(worker_status::Undefined)
     {}
     // TODO: implement
@@ -103,10 +105,28 @@ class simple_matrix_worker
         }
         return *states_ptr;
     }
+    matrix_type& matrix() {
+        if (!matrix_ptr) {
+            build_matrix();
+        }
+        return *matrix_ptr;
+    }
+    matrix_type const& matrix() const {
+        if (!matrix_ptr) {
+            throw std::logic_error("matrix is not built.");
+        }
+        return *matrix_ptr;
+    }
 
+ protected:
     void build_basis_states() {
         if (!states_ptr) {
             states_ptr.reset(new basis_states_type(alps::basis_states_descriptor<short>(model_.basis(), graph_.graph())));
+        }
+    }
+    void build_matrix() {
+        if (!matrix_ptr) {
+            matrix_ptr.reset();
         }
     }
 
@@ -114,6 +134,7 @@ class simple_matrix_worker
     graph_helper_type graph_;
     model_helper_type model_;
     boost::scoped_ptr<basis_states_type> states_ptr;
+    boost::scoped_ptr<matrix_type> matrix_ptr;
 
     worker_status_t status_;
 };

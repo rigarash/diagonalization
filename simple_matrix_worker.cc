@@ -35,7 +35,9 @@
     "  simple diagonalization for quantum lattice models using parapack scheduler \n" \
     "  Copyright (c) 2012-2012 Ryo IGARASHI <rigarash@issp.u-tokyo.ac.jp>\n" \
 
+typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;
+
 PARAPACK_SET_VERSION(SIMPLE_MATRIX_WORKER_VERSION);
 PARAPACK_SET_COPYRIGHT(SIMPLE_MATRIX_WORKER_COPYRIGHT);
-PARAPACK_REGISTER_WORKER(alps::diag::simple_matrix_worker<>, "simple diagonalization");
+PARAPACK_REGISTER_WORKER(alps::diag::simple_matrix_worker<matrix_type>, "simple diagonalization");
 PARAPACK_REGISTER_EVALUATOR(alps::parapack::simple_evaluator, "simple diagonalization");

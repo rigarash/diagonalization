@@ -49,7 +49,7 @@ struct F {
         (*pp)["L"]       = 4;
 
         // prepare worker
-        wp.reset(new alps::diag::simple_matrix_worker<>(*pp));
+        wp.reset(new alps::diag::simple_matrix_worker<matrix_type>(*pp));
 
         // precondition check
         BOOST_CHECK_EQUAL(wp->status(), alps::diag::worker_status::Undefined);
@@ -65,8 +65,9 @@ struct F {
         BOOST_CHECK(wp->is_thermalized());
     }
 
+    typedef boost::numeric::ublas::matrix<double, boost::numeric::ublas::column_major> matrix_type;
     boost::scoped_ptr<alps::Parameters> pp;
-    boost::scoped_ptr<alps::diag::simple_matrix_worker<> > wp;
+    boost::scoped_ptr<alps::diag::simple_matrix_worker<matrix_type> > wp;
 };
 
 BOOST_AUTO_TEST_CASE(simple_matrix_worker_h) {
