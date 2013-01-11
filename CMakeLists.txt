@@ -50,9 +50,11 @@ endif (NOT ALPS_HAS_BOOST_TEST)
 
 if (ALPS_HAS_BOOST_TEST OR Boost_FOUND)
   add_definitions(-DBOOST_TEST_DYN_LINK)
-  # If this definition is not set,
+  # If ALPS library is linked with Boost.test Unit Test Framework
+  # or precompiled Boost.test Unit Test Framework is found,
+  # set ALPS_HAS_BOOST_TEST definition and
   # use header-only version of Boost.Test Unit Test Framework.
-  add_definitions(-DALPS_HAS_BOOST_TEST)
+  add_definitions(-DALPS_LINK_BOOST_TEST)
 endif (ALPS_HAS_BOOST_TEST OR Boost_FOUND)
 
 include_directories(${Boost_INCLUDE_DIRS})

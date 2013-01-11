@@ -26,7 +26,7 @@
 #include "types.h"
 
 #define BOOST_TEST_MODULE test_types
-#ifndef ALPS_HAS_BOOST_TEST
+#ifndef ALPS_LINK_BOOST_TEST
 #include <boost/test/included/unit_test.hpp>
 #else
 #include <boost/test/unit_test.hpp>
